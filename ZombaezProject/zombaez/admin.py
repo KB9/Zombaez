@@ -1,3 +1,6 @@
 from django.contrib import admin
+from zombaez.models import User, Game, Badge
 
-# Register your models here.
+admin.site.register(User)
+admin.site.register(Game)
+admin.site.register(Badge)
