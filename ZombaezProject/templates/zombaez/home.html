@@ -1,0 +1,20 @@
+
+{% extends 'zombaez/base.html' %}
+
+{% load staticfiles %}
+
+{% block head_block %}
+	<link rel="stylesheet" href="{% static "styles/home.css"%}" type="text/css" />
+{% endblock %}
+{% block body_block %}
+	<img src="{%static "images/zombaezL.png"%}" alt="ZombaeZL"/>
+	<div id="about">
+		<h1>About the Game</h1>
+		<p>{{about}}</p>
+	<div>
+	<hr/>
+	<div id="whatsNew">
+		<h2>What's New</h2>
+		<p>{{whatsNew}}</p>
+	<div>
+{% endblock %}
