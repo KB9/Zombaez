@@ -1,0 +1,18 @@
+
+{% extends 'zombaez/base.html' %}
+
+{% load staticfiles %}
+
+{% block title_block %}
+	Leaderboards
+{% endblock %}
+
+{% block head_block %}
+	<link rel="stylesheet" href="{% static "styles/leaderboards.css"%}" type="text/css" />
+{% endblock %}
+
+{% block body_block %}
+
+		<p>{{leaderboards}}</p>
+
+{% endblock %}

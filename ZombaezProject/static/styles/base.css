@@ -2,85 +2,105 @@ body{
 	margin:0;
 	padding:0;
 	background-image: url("../images/background.png");
+	min-width:800px;
 }
 		
-div.x{
-	height:60px;
-	overflow:hidden;
-	min-width: 700px;
-}
-		
-#nav{
+#nav_bar{
 	list-style-type: none;
+	height: 42px;
 	margin:0;
 	padding:0;
-	overflow: hidden;
 	background-color: #701A1A;
-	box-shadow: 0px 5px 15px #701A1A
+	box-shadow: 0px 5px 20px #701A1A
 
 }
-
-#nav li {
-	margin:0;
-	float: left;
-	color: #878484;
-	height:42px;
-}
-		
-#nav li a{
-	display: block;
-	padding:9px 20px;
-	font-size: 130%;
-	text-align: center;
-	color:#939191;
-		
-}
-
-#nav li a:link{
-	text-decoration: none;	
-}
-
-#nav li a:visited{
-	text-decoration: none;
-}
-
-#nav li a:hover{
-	text-decoration: none;
-	color: #701A1A;
-	background-color:#939191;
-	border-radius:5px;
-}
-
-#nav li a:active{
-	text-decoration: none;
-}
-		
-#nav li.right{
-	float: right;
-}
-		
-#nav li.logoItem{
+	
+#logoItem{
 	margin:0;
 	padding:0;
 	border-top-right-radius:20px;
 	overflow:hidden;
 }
 
-#logo{
+.logo{
 	width:128px;
 	height:42px;
 }
 
-div.content{
-	background-color:#939191;
-	min-width:554px;
+#nav_bar li {
+	margin:2px;
+	height: 38px;
+	float: left;
+	color: #878484;
+}
+		
+#nav_bar li a{
+	margin:2px;
+	display: block;
+	padding: 8px 12px;
+	color:#CECECE;
+		
+}
+
+#nav_bar li a:link{
+	text-decoration: none;	
+}
+
+#nav_bar li a:visited{
+	text-decoration: none;
+}
+
+#nav_bar li a:hover{
+	text-decoration: none;
+	color: #701A1A;
+	background-color: #CECECE;
+	border-radius:10px;
+}
+
+#nav_bar li a:active{
+	text-decoration: none;
+}
+		
+#nav_bar li.right{
+	float: right;
+}
+
+.drop_down a{
+	text-align: right;
+
+}
+.drop_down:hover #drop_down_content{
+	display:block;
+}
+
+
+#drop_down_content{
+	margin:3px;
+	display: none;
+	z-index:1;
+	margin:0;
+	position: relative;
+	border-top-style: solid;
+	border-top-width: 3px;
+	border-top-color: #CECECE;
+    background-color: #701A1A;
+    border-bottom-right-radius: 10px;
+	border-bottom-left-radius: 10px;
+	box-shadow: 0px 5px 20px #701A1A
+}
+
+#content{
+	background-image: url("../images/content_background.png");
+	image-rendering: pixelated;
+	background-size: 12.5%;
 	position:relative;
-	top: 30px;
-	bottom:30px;
-	margin:0px 50px;
-	padding: 20px 50px;
+	top: 20px;
+	margin:50px;
+	padding: 20px 5%;
 	border-style:solid;
 	border-radius: 25px;
 	border-color: #701A1A;
 	box-shadow: 0px 5px 15px #521111;	
+	color: #701A1A;
+	text-align:center;
 }

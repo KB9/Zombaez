@@ -3,9 +3,14 @@
 
 {% load staticfiles %}
 
+{% block title_block %}
+	Home
+{% endblock %}
+
 {% block head_block %}
 	<link rel="stylesheet" href="{% static "styles/home.css"%}" type="text/css" />
 {% endblock %}
+
 {% block body_block %}
 	<img src="{%static "images/zombaezL.png"%}" alt="ZombaeZL"/>
 	<div id="about">
@@ -15,6 +20,6 @@
 	<hr/>
 	<div id="whatsNew">
 		<h2>What's New</h2>
-		<p>{{whatsNew}}</p>
+		<p>{{whats_new}}</p>
 	<div>
 {% endblock %}

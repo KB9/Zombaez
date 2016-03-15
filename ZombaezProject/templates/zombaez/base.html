@@ -4,20 +4,29 @@
 <html>
 	<head>
 		<link rel="stylesheet" href="{% static "styles/base.css"%}" type="text/css" />
+		<title> ZombaeZ - {% block title_block %}{% endblock %}</title>
 		{% block head_block %}{% endblock %}
 	</head>
 
 	<body>
-		<div class="x">
-			<ul id="nav">
-				<li class="logoItem" ><img id="logo" src="{% static "images/zombaez.png" %}" alt="ZombaeZ logo"/>
-				<li><a href="">Home</a></li>
-				<li><a href="/zombaez/how-to-play/">How to Play</a></li>
-				<li><a href="/zombaez/leaderboards/">Leaderboard</a></li>
-				<li class="right"><a href="">Log In/Register</a><li>
+			<ul id="nav_bar">
+				<li id="logoItem" ><img class="logo" src="{% static "images/zombaez.png" %}" alt="ZombaeZ logo"/>
+				<li><a href="{% url 'home' %}">Home</a></li>
+				<li><a href="{% url 'how_to_play' %}">How to Play</a></li>
+				<li><a href="{% url 'leaderboards' %}">Leaderboard</a></li>
+				{% if user.is_authenticated %}
+				<li class="right drop_down"><a>User</a>
+					<div id="drop_down_content">
+						<a href="{% url 'user_profile' %}">User Profile</a>
+						<a href="{% url 'play' %}">Play ZombaeZ</a>
+						<a href="{% url 'auth_logout' %}?next=/zombaez/">Logout</a>
+					</div>
+				</li>
+				{% else %}
+				<li class="right"><a href="{% url 'auth_login' %}?next={{ request.get_full_path|urlencode }}">Log In/Register</a><li>
+				{% endif %}
 			</ul>
-		</div>
-		<div class="content">
+		<div id="content">
             {% block body_block %}{% endblock %}
         </div>
 	</body>

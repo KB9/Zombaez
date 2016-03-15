@@ -37,6 +37,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'zombaez',
+    'registration',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -95,3 +96,10 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     STATIC_PATH,
 )
+
+#user profiles
+REGISTRATION_OPEN = True               
+ACCOUNT_ACTIVATION_DAYS = 7     
+REGISTRATION_AUTO_LOGIN = True  
+LOGIN_REDIRECT_URL = '/zombaez/'
+LOGIN_URL = '/user/login/'  
