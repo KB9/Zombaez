@@ -9,13 +9,13 @@
 {% block head_block %}
 	<link rel="stylesheet" href="{% static "styles/play.css"%}" type="text/css" />
 
+    <script src="{% static "js/citymap.js" %}"></script>
     <script src="{% static "js/renderer.js" %}"></script>
 {% endblock %}
 
 {% block body_block %}
 
-		<button id="play-button">Play</button>
+		<p id="play-button">Debug Info</p>
         <canvas id="game_canvas" width=640 height=480 style="border:1px solid #000000;"></canvas>
-        <img id="test" src=""></img>
 
 {% endblock %}
