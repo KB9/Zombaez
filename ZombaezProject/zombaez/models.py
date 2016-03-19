@@ -5,6 +5,7 @@ class User(models.Model):
     username = models.CharField(max_length=128, unique=True)
     user = models.OneToOneField(DjangoUser, on_delete=models.CASCADE, default=1)
 
+    
     zombies_killed = models.IntegerField(default=0)
     total_games_played = models.IntegerField(default=0)
     total_ammo_collected = models.IntegerField(default=0)

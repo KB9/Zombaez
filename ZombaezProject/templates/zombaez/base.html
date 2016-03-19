@@ -19,10 +19,10 @@
 				<li><a href="{% url 'how_to_play' %}">How to Play</a></li>
 				<li><a href="{% url 'leaderboards' %}">Leaderboard</a></li>
 				{% if user.is_authenticated %}
-				<li class="right drop_down"><a>User</a>
+				<li><a href="{% url 'play' %}">Play ZombaeZ</a></li>
+				<li class="right drop_down"><a>{{user.username}}</a>
 					<div id="drop_down_content">
 						<a href="{% url 'user_profile' %}">User Profile</a>
-						<a href="{% url 'play' %}">Play ZombaeZ</a>
 						<a href="{% url 'auth_logout' %}?next=/zombaez/">Logout</a>
 					</div>
 				</li>

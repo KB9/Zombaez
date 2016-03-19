@@ -1,10 +1,10 @@
 
 {% extends 'zombaez/base.html' %}
 
-{% load staticfiles %}
+{% load static %}
 
 {% block title_block %}
-	{{user.username}}
+	{{player.username}}
 {% endblock %}
 
 {% block head_block %}
@@ -12,37 +12,60 @@
 {% endblock %}
 
 {% block body_block %}
-
-		<h1>{{user.username}}'s Profile</h1>
+		{% if player %}
+		<h1>{{player.username}}'s Profile</h1>
+		<hr/>
+		<div id="profile_content">
+		
+		<div class="half">
 		<h3>Player Stats</h3>
 		<table>
 			<tr>
 				<td>Games Played</td>
-				<td>{{user.user.total_games_played}}</td>
+				<td>{{player.total_games_played}}</td>
 			</tr>
 			<tr>
 				<td>Days Survived</td>
-				<td>{{user.user.total_days_survived}}</td>
+				<td>{{player.total_days_survived}}</td>
 			</tr>
 			<tr>
 				<td>Zombies Killed</td>
-				<td>{{user.user.zombies_killed}}</td>
+				<td>{{player.zombies_killed}}</td>
 			</tr>
 			<tr>
 				<td>Largest Party</td>
-				<td>{{user.user.largest_party_size}}</td>
+				<td>{{player.largest_party_size}}</td>
 			</tr>
 			<tr>
 				<td>Ammunition Collected</td>
-				<td>{{user.user.total_ammo_collected}}</td>
+				<td>{{player.total_ammo_collected}}</td>
 			</tr>
 			<tr>
 				<td>Food Collected</td>
-				<td>{{user.user.total_ammo_collected}}</td>
+				<td>{{player.total_ammo_collected}}</td>
 			</tr>
 		</table>
+		
 		<h3>Badges</h3>
-		{% for badge in badges %}
-			<img src="{% static "/images/badges/" %}{{badge.image}}"/>
-		{% endfor %}
+		{% if badges %}
+			{% for badge in badges %}
+				<img src="{% static "" %}images/badges/{{badge.image}}" alt="{{badge.name}}" title="{{badge.name}} {{badge.level}} - {{badge.description}}"/>
+			{% endfor %}
+		{% else %}
+			{% if user.user = player %}
+				<p>You haven't earned any badges yet</p>
+			{% else %}
+				<p>This user hasn't earned any badges yet</p>
+			{% endif %}
+		{% endif %}
+		</div>
+		<div class="half right_profile">
+			<div id="wrapper">
+				<img id = "avatar" src="{{player.avatar.url}}" alt="Profile Image"/>
+			</div>
+		</div>
+		</div>
+		{% else%}
+		<p> User does not exist </p>
+		{% endif %}
 {% endblock %}
