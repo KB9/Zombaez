@@ -1,3 +1,5 @@
+// =============== TILED LEVELS ===============
+
 var Level = function(tilesetImage, levelWidth, levelHeight, tileWidth, tileHeight) {
     this.tiles = [];
     this.topTiles = [];
@@ -47,13 +49,6 @@ Level.prototype.loadLevel = function(tiledJSMapName) {
     }
 }
 
-Level.prototype.render = function(context) {
-    clearCanvas();
-
-    this.renderLayer(this.tiles);
-    this.renderLayer(this.topTiles);
-}
-
 Level.prototype.renderLayer = function(layerIndexList) {
     var realTileWidth = this.tileWidth + this.tileSpacing;
     var realTileHeight = this.tileHeight + this.tileSpacing;
@@ -70,14 +65,46 @@ Level.prototype.renderLayer = function(layerIndexList) {
                     var clipY = Math.floor(tileIndex / this.tilesetTileWidth) * realTileHeight;
 
                     context.drawImage(this.tilesetImage, clipX, clipY, this.tileWidth, this.tileHeight, tileX, tileY, this.tileWidth, this.tileHeight);
+                    //context.font = "8px Arial";
+                    //context.fillText(tileIndex, tileX, tileY);
                 }
             }
         }
     }
 }
 
+Level.prototype.getTileIndex = function(layer, x, y) {
+    if (x < 0) return null;
+    if (y < 0) return null;
+    if (x > (this.levelWidth * this.tileWidth)) return null;
+    if (y > (this.levelHeight * this.tileHeight)) return null;
+
+    var row = Math.floor(y / this.tileHeight);
+    var col = Math.floor(x / this.tileWidth);
+    if (layer == 0) return this.tiles[row][column];
+    return this.topTiles[row][column];
+}
+
+// =============== CHARACTER ===============
+
+var Character = function(charImage, level) {
+    this.charImage = charImage;
+    this.level = level;
+    this.x = 0;
+    this.y = 0;
+    this.width = 16;
+    this.height = 16;
+}
+
+Character.prototype.render = function(context) {
+    context.drawImage(this.charImage, this.level.x + this.x, this.level.y + this.y, this.width, this.height);
+}
+
+// =============== INITIALISATION AND GLOBALS ===============
+
 var g_sources = {
-    tileset: "../../static/images/tileset.png"
+    tileset: "../../static/images/tileset.png",
+    character: "../../static/images/character.png"
 };
 var g_images = {};
 
@@ -85,6 +112,7 @@ var canvas;
 var context;
 
 var level;
+var player;
 
 window.onload = function() {
     canvas = document.getElementById("game_canvas");
@@ -92,9 +120,10 @@ window.onload = function() {
 
     loadImages(g_sources, function(g_images) {
         level = new Level(g_images.tileset, 64, 64, 16, 16);
-        //level.generateLevel();
+        player = new Character(g_images.character, level);
+
         level.loadLevel("citymap");
-        level.render(context);
+        renderScene();
     });
 }
 
@@ -116,6 +145,14 @@ function onEnterHouse() {
     });
 }
 
+function renderScene() {
+    clearCanvas();
+
+    level.renderLayer(level.tiles);
+    player.render(context);
+    level.renderLayer(level.topTiles);
+}
+
 // =============== CANVAS RELATED FUNCTIONS ===============
 
 function debugDrawText(text) {
@@ -133,29 +170,50 @@ function onKeyPressed(charCode) {
     // W, A, S, D, E
     var charCodeStrings = {"119": "up", "97": "left", "115": "down", "100": "right", "101": "enter"};
 
+    // Carry out an action if the user presses a key in the dictionary
     if (charCode in charCodeStrings) {
         var charString = charCodeStrings[charCode];
 
         switch (charString) {
             case "up":
-                level.y += 5;
+                player.y -= 5;
                 break;
             case "left":
-                level.x += 5;
+                player.x -= 5;
                 break;
             case "down":
-                level.y -= 5;
+                player.y += 5;
                 break;
             case "right":
-                level.x -= 5;
+                player.x += 5;
                 break;
             case "enter":
                 onEnterHouse();
                 break;
         }
 
-        level.render(context);
+        // Stops the character walking out of the level
+        if (player.x < 0) player.x = 0;
+        if (player.y < 0) player.y = 0;
+        if ((player.x + player.width) > (level.levelWidth * level.tileWidth)) player.x = (level.levelWidth * level.tileWidth) - player.width;
+        if ((player.y + player.height) > (level.levelHeight * level.tileHeight)) player.y = (level.levelHeight * level.tileHeight) - player.height;
+
+        // Corrects the "camera" from scrolling outside the x-bounds of the level
+        level.x = 320 - player.x;
+        if (player.x - 320 < 0) level.x = 0;
+        if (player.x + 320 > (level.levelWidth * level.tileWidth)) level.x = 640 - (level.levelWidth * level.tileWidth);
+
+        // Corrects the "camera" from scrolling outside the y-bounds of the level
+        level.y = 240 - player.y;
+        if (player.y - 240 < 0) level.y = 0;
+        if (player.y + 240 > (level.levelHeight * level.tileHeight)) level.y = 480 - (level.levelHeight * level.tileHeight);
+
+        renderScene();
     }
+}
+
+function inArray(value, array) {
+    return array.indexOf(value) > -1;
 }
 
 // =============== UTILITY FUNCTIONS ===============
