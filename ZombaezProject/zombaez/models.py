@@ -1,7 +1,9 @@
 from django.db import models
+from django.contrib.auth.models import User as DjangoUser
 
 class User(models.Model):
     username = models.CharField(max_length=128, unique=True)
+    user = models.OneToOneField(DjangoUser, on_delete=models.CASCADE, default=1)
 
     zombies_killed = models.IntegerField(default=0)
     total_games_played = models.IntegerField(default=0)
@@ -9,7 +11,7 @@ class User(models.Model):
     largest_party_size = models.IntegerField(default=0)
     total_food_collected = models.IntegerField(default=0)
     total_days_survived = models.IntegerField(default=0)
-    avatar = models.CharField(max_length=128)
+    avatar = models.ImageField(upload_to = 'profile_images',blank = True)
 
     def __unicode__(self):
         return self.username

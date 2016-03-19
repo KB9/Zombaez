@@ -2,6 +2,8 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.views.generic import RedirectView
 from registration.backends.simple.views import RegistrationView
+from zombaez import RegBackend
+from django.conf import settings
 
 class MyRegistrationView(RegistrationView):
     def get_success_url(self,request):
@@ -16,3 +18,10 @@ urlpatterns = patterns('',
    
 )
 
+
+if settings.DEBUG:
+    urlpatterns += patterns(
+        'django.views.static',
+        (r'^media/(?P<path>.*)',
+        'serve',
+        {'document_root': settings.MEDIA_ROOT}), )
