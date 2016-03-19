@@ -55,16 +55,16 @@ def play(request):
     return render(request, 'zombaez/play.html', context_dict)
 
 @login_required
+# REQUIRED PARAMETERS: event_type
 def game_event(request): 
     if request.method != "GET":
         return  
 
     get = request.GET;
+    eventType = get["event_type"];
 
-    engine.startNewGame()
+    engine.initNewGame()
     pickleList = engine.getPickledGame()
     print pickleList
 
-    passedInString = get["var"]
-
-    return HttpResponse(passedInString)
+    return HttpResponse(eventType)

@@ -9,7 +9,7 @@ import pickle
 
 game = None
 
-def startNewGame():
+def initNewGame():
     global game
 
     game = Game()
