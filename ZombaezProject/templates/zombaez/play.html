@@ -1,4 +1,3 @@
-
 {% extends 'zombaez/base.html' %}
 
 {% load staticfiles %}
@@ -9,10 +8,14 @@
 
 {% block head_block %}
 	<link rel="stylesheet" href="{% static "styles/play.css"%}" type="text/css" />
+
+    <script src="{% static "js/renderer.js" %}"></script>
 {% endblock %}
 
 {% block body_block %}
 
-		<p>{{play}}</p>
+		<button id="play-button">Play</button>
+        <canvas id="game_canvas" width=640 height=480 style="border:1px solid #000000;"></canvas>
+        <img id="test" src=""></img>
 
 {% endblock %}

@@ -2,6 +2,9 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 
+from engine import main as engine
+from threading import Thread
+
 def home(request):
     context_dict = {'test': "test context dict entry"}
     context_dict["about"] = "TBC - Text regarding the description of the game."
@@ -50,3 +53,18 @@ def user_profile(request):
 def play(request):
     context_dict = {"play":"PLLAAYYYAAAAA"}
     return render(request, 'zombaez/play.html', context_dict)
+
+@login_required
+def game_event(request): 
+    if request.method != "GET":
+        return  
+
+    get = request.GET;
+
+    engine.startNewGame()
+    pickleList = engine.getPickledGame()
+    print pickleList
+
+    passedInString = get["var"]
+
+    return HttpResponse(passedInString)
