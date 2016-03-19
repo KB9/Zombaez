@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
-
+from zombaez.models import Badge
 from engine import main as engine
 from threading import Thread
 
@@ -32,6 +32,7 @@ def leaderboards(request):
 @login_required
 def user_profile(request):
     context_dict = {"user_profile": "TBC - Text regarding user profile in the game."}
+    context_dict['badges'] = Badge.objects.filter(user = request.user.user)
     return render(request, 'zombaez/user_profile.html', context_dict)
 
 @login_required

@@ -19,7 +19,6 @@ def populate():
     )
 
     add_badge(
-            badge_id=1,
             user=kavan_user,
             description='The most dank badge there is.',
             level=1,
@@ -58,8 +57,8 @@ def add_user(username, zombies_killed=0, total_games_played=0, total_ammo_collec
     u.save()
     return u
 
-def add_badge(badge_id, user, description='', level=0, name='', image='', requirements=''):
-    b = Badge.objects.get_or_create(badge_id=badge_id, user=user)[0]
+def add_badge(user, description='', level=0, name='', image='', requirements=''):
+    b = Badge.objects.get_or_create(user=user)[0]
 
     b.description = description
     b.level = level

@@ -8,7 +8,7 @@ class UserAdmin(admin.ModelAdmin):
     )
 
 class BadgeAdmin(admin.ModelAdmin):
-    list_display = ('badge_id', 'user', 'description', 'level', 'name',
+    list_display = ('user', 'description', 'level', 'name',
             'image', 'requirements'
     )
 

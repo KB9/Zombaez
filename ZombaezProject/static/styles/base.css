@@ -2,7 +2,7 @@ body{
 	margin:0;
 	padding:0;
 	background-image: url("../images/background.png");
-	min-width:800px;
+	min-width:600px;
 }
 		
 #nav_bar{
@@ -94,9 +94,9 @@ body{
 	image-rendering: pixelated;
 	background-size: 12.5%;
 	position:relative;
-	top: 20px;
-	margin:50px;
-	padding: 20px 5%;
+	top: 10px;
+	margin:3% 10%;
+	padding:3% 10%;
 	border-style:solid;
 	border-radius: 25px;
 	border-color: #701A1A;

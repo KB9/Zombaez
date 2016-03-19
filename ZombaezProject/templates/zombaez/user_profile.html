@@ -13,6 +13,36 @@
 
 {% block body_block %}
 
-		<p>{{user_profile}}</p>
-
+		<h1>{{user.username}}'s Profile</h1>
+		<h3>Player Stats</h3>
+		<table>
+			<tr>
+				<td>Games Played</td>
+				<td>{{user.user.total_games_played}}</td>
+			</tr>
+			<tr>
+				<td>Days Survived</td>
+				<td>{{user.user.total_days_survived}}</td>
+			</tr>
+			<tr>
+				<td>Zombies Killed</td>
+				<td>{{user.user.zombies_killed}}</td>
+			</tr>
+			<tr>
+				<td>Largest Party</td>
+				<td>{{user.user.largest_party_size}}</td>
+			</tr>
+			<tr>
+				<td>Ammunition Collected</td>
+				<td>{{user.user.total_ammo_collected}}</td>
+			</tr>
+			<tr>
+				<td>Food Collected</td>
+				<td>{{user.user.total_ammo_collected}}</td>
+			</tr>
+		</table>
+		<h3>Badges</h3>
+		{% for badge in badges %}
+			<img src="{% static "/images/badges/" %}{{badge.image}}"/>
+		{% endfor %}
 {% endblock %}

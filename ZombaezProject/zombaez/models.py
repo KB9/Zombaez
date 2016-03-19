@@ -11,13 +11,12 @@ class User(models.Model):
     largest_party_size = models.IntegerField(default=0)
     total_food_collected = models.IntegerField(default=0)
     total_days_survived = models.IntegerField(default=0)
-    avatar = models.ImageField(upload_to = 'profile_images',blank = True)
+    avatar = models.ImageField(upload_to='profile_images',blank=True)
 
     def __unicode__(self):
         return self.username
 
 class Badge(models.Model):
-    badge_id = models.IntegerField(unique=True)
     user = models.ForeignKey(User)
 
     description = models.CharField(max_length=128)
@@ -27,7 +26,7 @@ class Badge(models.Model):
     requirements = models.CharField(max_length=128)
 
     def __unicode__(self):
-        return "{0}'s Badge {1}".format(self.user.username, str(self.badge_id))
+        return "{0}'s Badge".format(self.user.username)
 
 class Game(models.Model):
     user = models.OneToOneField(User)
