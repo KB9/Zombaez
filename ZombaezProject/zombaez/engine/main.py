@@ -2,8 +2,9 @@ __author__ = 'leif'
 
 import os
 from game import Game
-from streetfactory import StreetFactory
+from streetfactory import StreetFactory, Street
 from game import PlayerState
+from zombaez.models import Game as userGame
 
 import pickle
 
@@ -11,18 +12,26 @@ game = None
 
 def initNewGame():
     global game
-
+    print "game"
     game = Game()
     return game
 
-def getPickledGame():
-    player_state = pickle.dumps(game.player_state)
-    update_state = pickle.dumps(game.update_state)
-    #street_factory = pickle.dumps(game.street_factory)
-    game_state = game.game_state
-    
-    #Need street factory in here too!
-    return [player_state, update_state, game_state]
+def pickleGame(request):
+   # game.player_state = pickle.load(Game.objects.get(user=request.user.user).player_state)
+   # game.update_state = pickle.load(Game.objects.get(user=request.user.user).player_state)
+    #game.street = pickle.load(Game.objects.get(user=request.user.user).street)
+    #game.street_factory = pickle.load(Game.objects.get(user=request.user.user).street)
+    print "1"
+    data = userGame.objects.get_or_create(user=request.user.user)[0]
+    print "2"
+    data.player_state = pickle.dumps(game.player_state)
+    print "2"
+    data.update_state = pickle.dumps(game.update_state)
+    print "4"
+    data.game_state = pickle.dumps(game.game_state)
+    print "5"
+    data.save()
+    print"6"
     
 """
 def main():

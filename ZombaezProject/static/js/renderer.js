@@ -145,11 +145,43 @@ var hallLevel;
 var activeLevel;
 
 var player;
-
+window.onunload = function(){
+ $.ajax({
+        type: "GET",
+        url: "/zombaez/game_event/",
+        data: {
+            "event_type": "pickle_on_quit"
+        },
+        success: function(data) {
+	alert("You quit")
+            $("#play-button").html(data);
+        },
+        error: function(data) {
+            alert("you failed quit")
+        }
+    });
+}
 window.onload = function() {
-	
-    var c = document.getElementById("nav4");//menu stuff - don't delete - David
-    c.className += " active"; //menu stuff - don't delete - David
+
+// Navigation bar code
+    var c = document.getElementById("nav4");
+    c.className += " active";
+//Pickling code
+    $.ajax({
+        type: "GET",
+        url: "/zombaez/game_event/",
+        data: {
+            "event_type": "pickle_on_load"
+        },
+        success: function(data) {
+		alert("You started")
+            $("#play-button").html(data);
+        },
+        error: function(data) {
+            alert("You failed load")
+        }
+    });
+//Canvas/Game code
     canvas = document.getElementById("game_canvas");
     context = canvas.getContext("2d");
 

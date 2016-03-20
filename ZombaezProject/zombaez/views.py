@@ -61,12 +61,13 @@ def play(request):
 def game_event(request): 
     if request.method != "GET":
         return  
-
+    
     get = request.GET;
     eventType = get["event_type"];
-
+    if eventType == "pickle_on_load":
+        print "event"
     engine.initNewGame()
-    pickleList = engine.getPickledGame()
-    print pickleList
-
+    print "init"
+    pickleList = engine.pickleGame(request)
+    print "pickle"
     return HttpResponse(eventType)

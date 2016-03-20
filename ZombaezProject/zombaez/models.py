@@ -32,11 +32,10 @@ class Badge(models.Model):
 class Game(models.Model):
     user = models.OneToOneField(User)
 
-    time_of_day = models.IntegerField(default=0)
-    party_size = models.IntegerField(default=0)
-    ammo_count = models.IntegerField(default=0)
-    food_count = models.IntegerField(default=0)
-    days_survived = models.IntegerField(default=0)
+    player_state = models.CharField(max_length=8192, default=" ", blank = True)
+    game_state = models.CharField(max_length=8192, default=" ", blank = True)
+    update_state = models.CharField(max_length=8192, default=" ", blank = True)
+
 
     def __unicode__(self):
         return "{0}'s Game".format(self.user.username)
