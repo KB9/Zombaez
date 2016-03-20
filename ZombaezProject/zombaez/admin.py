@@ -4,7 +4,7 @@ from zombaez.models import User, Game, Badge
 class UserAdmin(admin.ModelAdmin):
     list_display = ('username', 'zombies_killed', 'total_games_played',
             'total_ammo_collected', 'largest_party_size', 'total_food_collected',
-            'total_days_survived', 'avatar'
+            'total_days_survived'#, 'avatar'
     )
 
 class BadgeAdmin(admin.ModelAdmin):
