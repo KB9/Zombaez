@@ -1,14 +1,18 @@
 // =============== TILED LEVELS ===============
 
-var Level = function(tilesetImage, levelWidth, levelHeight, tileWidth, tileHeight) {
+var Level = function(tilesetImage, baseImage, levelWidth, levelHeight, tileWidth, tileHeight) {
     this.tiles = [];
     this.topTiles = [];
     
     this.tilesetImage = tilesetImage;
+    this.baseImage = baseImage;
+
     this.levelWidth = levelWidth;
     this.levelHeight = levelHeight;
     this.tileWidth = tileWidth;
     this.tileHeight = tileHeight;
+    this.actualWidth = levelWidth * tileWidth;
+    this.actualHeight = levelHeight * tileHeight;
     this.x = 0;
     this.y = 0;
     this.tileSpacing = 1;
@@ -49,6 +53,10 @@ Level.prototype.loadLevel = function(tiledJSMapName) {
     }
 }
 
+Level.prototype.renderBaseImage = function() {
+    context.drawImage(this.baseImage, -this.x, -this.y, 640, 480, 0, 0, 640, 480);
+}
+
 Level.prototype.renderLayer = function(layerIndexList) {
     var realTileWidth = this.tileWidth + this.tileSpacing;
     var realTileHeight = this.tileHeight + this.tileSpacing;
@@ -65,8 +73,9 @@ Level.prototype.renderLayer = function(layerIndexList) {
                     var clipY = Math.floor(tileIndex / this.tilesetTileWidth) * realTileHeight;
 
                     context.drawImage(this.tilesetImage, clipX, clipY, this.tileWidth, this.tileHeight, tileX, tileY, this.tileWidth, this.tileHeight);
-                    //context.font = "8px Arial";
-                    //context.fillText(tileIndex, tileX, tileY);
+                    //context.font = "9px Arial";
+                    //context.fillStyle = "magenta";
+                    //context.fillText(tileIndex, tileX, tileY + 16);
                     //context.fillText(r + ",", tileX, tileY + 8);
                     //context.fillText(c, tileX, tileY + 16);
                 }
@@ -78,13 +87,13 @@ Level.prototype.renderLayer = function(layerIndexList) {
 Level.prototype.getTileIndex = function(layer, x, y) {
     if (x < 0) return null;
     if (y < 0) return null;
-    if (x > (this.levelWidth * this.tileWidth)) return null;
-    if (y > (this.levelHeight * this.tileHeight)) return null;
+    if (x > this.actualWidth) return null;
+    if (y > this.actualHeight) return null;
 
     var row = Math.floor(y / this.tileHeight);
     var col = Math.floor(x / this.tileWidth);
-    if (layer == 0) return this.tiles[row][column];
-    return this.topTiles[row][column];
+    if (layer == 0) return this.tiles[row][col];
+    return this.topTiles[row][col];
 }
 
 // =============== CHARACTER ===============
@@ -106,7 +115,8 @@ Character.prototype.render = function(context) {
 
 var g_sources = {
     tileset: "../../static/images/tileset.png",
-    character: "../../static/images/character.png"
+    character: "../../static/images/character.png",
+    map_base_image: "../../static/images/citymap.png"
 };
 var g_images = {};
 
@@ -124,7 +134,7 @@ window.onload = function() {
     context = canvas.getContext("2d");
 
     loadImages(g_sources, function(g_images) {
-        level = new Level(g_images.tileset, 64, 64, 16, 16);
+        level = new Level(g_images.tileset, g_images.map_base_image, 64, 64, 16, 16);
         player = new Character(g_images.character, level);
 
         level.loadLevel("citymap");
@@ -132,7 +142,7 @@ window.onload = function() {
     });
 }
 
-// =============== GAME RELATED FUNCTIONS ===============
+// =============== GAME RELATED FUNCTIONS/VARIABLES ===============
 
 // Door coordinates (specific to level): [row, column]
 var doorCoords = [
@@ -142,13 +152,20 @@ var doorCoords = [
     [61,3], [61,4], [58,11], [59,22], [61,49], [61,50]
 ];
 
+// IDs of non-blocking tiles
+var nonBlockingTiles = [751,714,831,832,794,795,823,822,789,747,741,710,821,857,858,900,748,711,746,820,859];
+
 function isOnDoor(level, x, y) {
     x = Math.floor(x / level.tileWidth);
-    y = Math.floor(y / level.tileHeight);
+    y = Math.floor(y / level.tileHeight) - 1;   // -1 so that collision detection doesn't prevent entry
     for (var i = 0; i < doorCoords.length; i++) {
         if (y == doorCoords[i][0] && x == doorCoords[i][1]) return true;
     }
     return false;
+}
+
+function isNonBlockingTile(level, x, y) {
+    return nonBlockingTiles.indexOf(level.getTileIndex(0, x, y)) > -1;
 }
 
 function onEnterHouse() {
@@ -170,7 +187,8 @@ function onEnterHouse() {
 function renderScene() {
     clearCanvas();
 
-    level.renderLayer(level.tiles);
+    //level.renderLayer(level.tiles);
+    level.renderBaseImage();
     player.render(context);
     level.renderLayer(level.topTiles);
 }
@@ -196,6 +214,9 @@ function onKeyPressed(charCode) {
     if (charCode in charCodeStrings) {
         var charString = charCodeStrings[charCode];
 
+        var prevPlayerX = player.x;
+        var prevPlayerY = player.y;
+
         switch (charString) {
             case "up":
                 player.y -= 5;
@@ -209,33 +230,40 @@ function onKeyPressed(charCode) {
             case "right":
                 player.x += 5;
                 break;
-            case "enter":
-                onEnterHouse();
-                break;
         }
 
         // Stops the character walking out of the level
         if (player.x < 0) player.x = 0;
         if (player.y < 0) player.y = 0;
-        if ((player.x + player.width) > (level.levelWidth * level.tileWidth)) player.x = (level.levelWidth * level.tileWidth) - player.width;
-        if ((player.y + player.height) > (level.levelHeight * level.tileHeight)) player.y = (level.levelHeight * level.tileHeight) - player.height;
+        if ((player.x + player.width) > level.actualWidth) player.x = level.actualWidth - player.width;
+        if ((player.y + player.height) > level.actualHeight) player.y = level.actualHeight - player.height;
+
+        // Gets center coordinates of player
+        var playerCX = player.x + (player.width / 2);
+        var playerCY = player.y + (player.height / 2);
+
+        // Corrects player position if on a blocking tile
+        if (!isNonBlockingTile(level, playerCX, playerCY)) {
+            player.x = prevPlayerX;
+            player.y = prevPlayerY;
+        }
+
+        // After position correction, allow player to enter house if they are in front of door
+        if (charString == "enter") {
+            if (isOnDoor(level, playerCX, playerCY)) {
+                onEnterHouse();
+            }
+        }
 
         // Corrects the "camera" from scrolling outside the x-bounds of the level
         level.x = 320 - player.x;
         if (player.x - 320 < 0) level.x = 0;
-        if (player.x + 320 > (level.levelWidth * level.tileWidth)) level.x = 640 - (level.levelWidth * level.tileWidth);
+        if (player.x + 320 > level.actualWidth) level.x = 640 - level.actualWidth;
 
         // Corrects the "camera" from scrolling outside the y-bounds of the level
         level.y = 240 - player.y;
         if (player.y - 240 < 0) level.y = 0;
-        if (player.y + 240 > (level.levelHeight * level.tileHeight)) level.y = 480 - (level.levelHeight * level.tileHeight);
-
-        // Check if player has walked onto a door
-        var playerCX = player.x + (player.width / 2);
-        var playerCY = player.y + (player.height / 2);
-        if (isOnDoor(level, playerCX, playerCY)) {
-            onEnterHouse();
-        }
+        if (player.y + 240 > level.actualHeight) level.y = 480 - level.actualHeight;
 
         renderScene();
     }
