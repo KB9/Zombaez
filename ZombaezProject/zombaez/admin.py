@@ -13,9 +13,7 @@ class BadgeAdmin(admin.ModelAdmin):
     )
 
 class GameAdmin(admin.ModelAdmin):
-    list_display = ('user', 'time_of_day', 'party_size', 'ammo_count',
-            'food_count', 'days_survived'
-    )
+    list_display = ('user','game_state','update_state','player_state')
 
 admin.site.register(User, UserAdmin)
 admin.site.register(Game, GameAdmin)
