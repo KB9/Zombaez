@@ -31,24 +31,29 @@ Level.prototype.generateLevel = function() {
 }
 
 Level.prototype.loadLevel = function(tiledJSMapName) {
-    var layer1Tiles = TileMaps[tiledJSMapName]["layers"][0]["data"];
-    var layer2Tiles = TileMaps[tiledJSMapName]["layers"][1]["data"];
+    var tileLayers = TileMaps[tiledJSMapName]["layers"];
 
-    for (var r = 0; r < this.levelHeight; r++) {
-        this.tiles[r] = [];
-        for (var c = 0; c < this.levelWidth; c++) {
-            // Subtract 1 since Tiled maps are exported with 0 == no tile
-            var index = (r * this.levelWidth) + c;
-            this.tiles[r].push(layer1Tiles[index] - 1);
+    if (tileLayers[0] != null) {
+        var layer1Tiles = tileLayers[0]["data"];
+        for (var r = 0; r < this.levelHeight; r++) {
+            this.tiles[r] = [];
+            for (var c = 0; c < this.levelWidth; c++) {
+                // Subtract 1 since Tiled maps are exported with 0 == no tile
+                var index = (r * this.levelWidth) + c;
+                this.tiles[r].push(layer1Tiles[index] - 1);
+            }
         }
     }
 
-    for (var r = 0; r < this.levelHeight; r++) {
-        this.topTiles[r] = [];
-        for (var c = 0; c < this.levelWidth; c++) {
-            // Subtract 1 since Tiled maps are exported with 0 == no tile
-            var index = (r * this.levelWidth) + c;
-            this.topTiles[r].push(layer2Tiles[index] - 1);
+    if (tileLayers[1] != null) {
+        var layer2Tiles = tileLayers[1]["data"];
+        for (var r = 0; r < this.levelHeight; r++) {
+            this.topTiles[r] = [];
+            for (var c = 0; c < this.levelWidth; c++) {
+                // Subtract 1 since Tiled maps are exported with 0 == no tile
+                var index = (r * this.levelWidth) + c;
+                this.topTiles[r].push(layer2Tiles[index] - 1);
+            }
         }
     }
 }
@@ -111,12 +116,24 @@ Character.prototype.render = function(context) {
     context.drawImage(this.charImage, this.level.x + this.x, this.level.y + this.y, this.width, this.height);
 }
 
+Character.prototype.setLevel = function(newLevel, x, y) {
+    this.level = newLevel;
+    this.x = x;
+    this.y = y;
+}
+
 // =============== INITIALISATION AND GLOBALS ===============
+
+var SCREEN_WIDTH = 640;
+var SCREEN_HEIGHT = 480;
+var HALF_SCREEN_WIDTH = SCREEN_WIDTH / 2;
+var HALF_SCREEN_HEIGHT = SCREEN_HEIGHT / 2;
 
 var g_sources = {
     tileset: "../../static/images/tileset.png",
     character: "../../static/images/character.png",
-    map_base_image: "../../static/images/citymap.png"
+    map_base_image: "../../static/images/citymap.png",
+    hall_base_image: "../../static/images/hallmap.png"
 };
 var g_images = {};
 
@@ -124,6 +141,9 @@ var canvas;
 var context;
 
 var level;
+var hallLevel;
+var activeLevel;
+
 var player;
 
 window.onload = function() {
@@ -135,62 +155,59 @@ window.onload = function() {
 
     loadImages(g_sources, function(g_images) {
         level = new Level(g_images.tileset, g_images.map_base_image, 64, 64, 16, 16);
+        level.loadLevel("citymap");
+
         player = new Character(g_images.character, level);
 
-        level.loadLevel("citymap");
+        hallLevel = new Level(g_images.tileset, g_images.hall_base_image, 64, 64, 16, 16);
+        hallLevel.loadLevel("hallmap");
+
+        activeLevel = level;
+
         renderScene();
     });
 }
 
 // =============== GAME RELATED FUNCTIONS/VARIABLES ===============
 
-// Door coordinates (specific to level): [row, column]
-var doorCoords = [
-    [13,3], [13,4], [10,18], [10,25], [13,38], [13,45], [13,52],
-    [29,42], [29,43], [28,51], [29,57],
-    [45,9], [45,16], [45,23], [45,42], [45,43], [43,54], [44,60], [44,61],
-    [61,3], [61,4], [58,11], [59,22], [61,49], [61,50]
+// Door data containing their respective coords and ids (specific to level): [row, column, id]
+var doorData = [
+    [13,3,0], [13,4,0], [13,9,1], [13,10,1], [10,18,2], [10,25,3], [13,38,4], [13,45,5], [13,52,6],
+    [29,42,7], [29,43,7], [28,51,8], [29,57,9],
+    [45,9,10], [45,16,11], [45,23,12], [45,42,13], [45,43,13], [43,54,14], [44,60,15], [44,61,15],
+    [61,3,16], [61,4,16], [58,11,17], [59,22,18], [61,49,19], [61,50,19]
 ];
 
 // IDs of non-blocking tiles
 var nonBlockingTiles = [751,714,831,832,794,795,823,822,789,747,741,710,821,857,858,900,748,711,746,820,859];
 
-function isOnDoor(level, x, y) {
+function getDoorIdInFrontOfPlayer(level, x, y) {
     x = Math.floor(x / level.tileWidth);
     y = Math.floor(y / level.tileHeight) - 1;   // -1 so that collision detection doesn't prevent entry
-    for (var i = 0; i < doorCoords.length; i++) {
-        if (y == doorCoords[i][0] && x == doorCoords[i][1]) return true;
+    for (var i = 0; i < doorData.length; i++) {
+        var doorRow = doorData[i][0];
+        var doorCol = doorData[i][1];
+        var doorId = doorData[i][2];
+        if (y == doorRow && x == doorCol) return doorId;
     }
-    return false;
+    return null;
 }
 
 function isNonBlockingTile(level, x, y) {
     return nonBlockingTiles.indexOf(level.getTileIndex(0, x, y)) > -1;
 }
 
-function onEnterHouse() {
-    $.ajax({
-        type: "GET",
-        url: "/zombaez/game_event/",
-        data: {
-            "event_type": "house_entered"
-        },
-        success: function(data) {
-            $("#play-button").html(data);
-        },
-        error: function(data) {
-            alert("Failed to connect to engine!")
-        }
-    });
-}
-
 function renderScene() {
     clearCanvas();
 
     //level.renderLayer(level.tiles);
-    level.renderBaseImage();
+    activeLevel.renderBaseImage();
+
     player.render(context);
-    level.renderLayer(level.topTiles);
+
+    if (activeLevel.topTiles.length > 0) {
+        activeLevel.renderLayer(activeLevel.topTiles);
+    }
 }
 
 // =============== CANVAS RELATED FUNCTIONS ===============
@@ -235,38 +252,43 @@ function onKeyPressed(charCode) {
         // Stops the character walking out of the level
         if (player.x < 0) player.x = 0;
         if (player.y < 0) player.y = 0;
-        if ((player.x + player.width) > level.actualWidth) player.x = level.actualWidth - player.width;
-        if ((player.y + player.height) > level.actualHeight) player.y = level.actualHeight - player.height;
+        if ((player.x + player.width) > activeLevel.actualWidth) player.x = activeLevel.actualWidth - player.width;
+        if ((player.y + player.height) > activeLevel.actualHeight) player.y = activeLevel.actualHeight - player.height;
 
         // Gets center coordinates of player
         var playerCX = player.x + (player.width / 2);
         var playerCY = player.y + (player.height / 2);
 
         // Corrects player position if on a blocking tile
-        if (!isNonBlockingTile(level, playerCX, playerCY)) {
+        if (!isNonBlockingTile(activeLevel, playerCX, playerCY)) {
             player.x = prevPlayerX;
             player.y = prevPlayerY;
         }
 
         // After position correction, allow player to enter house if they are in front of door
         if (charString == "enter") {
-            if (isOnDoor(level, playerCX, playerCY)) {
-                onEnterHouse();
+            var doorId = getDoorIdInFrontOfPlayer(activeLevel, playerCX, playerCY);
+            if (doorId != null) {
+                onEnterHouse(doorId);
             }
         }
 
-        // Corrects the "camera" from scrolling outside the x-bounds of the level
-        level.x = 320 - player.x;
-        if (player.x - 320 < 0) level.x = 0;
-        if (player.x + 320 > level.actualWidth) level.x = 640 - level.actualWidth;
-
-        // Corrects the "camera" from scrolling outside the y-bounds of the level
-        level.y = 240 - player.y;
-        if (player.y - 240 < 0) level.y = 0;
-        if (player.y + 240 > level.actualHeight) level.y = 480 - level.actualHeight;
+        updateCamera();
 
         renderScene();
     }
+}
+
+function updateCamera() {
+    // Corrects the "camera" from scrolling outside the x-bounds of the level
+    activeLevel.x = HALF_SCREEN_WIDTH - player.x;
+    if (player.x - HALF_SCREEN_WIDTH < 0) activeLevel.x = 0;
+    if (player.x + HALF_SCREEN_WIDTH > activeLevel.actualWidth) activeLevel.x = SCREEN_WIDTH - activeLevel.actualWidth;
+
+    // Corrects the "camera" from scrolling outside the y-bounds of the level
+    activeLevel.y = HALF_SCREEN_HEIGHT - player.y;
+    if (player.y - HALF_SCREEN_HEIGHT < 0) activeLevel.y = 0;
+    if (player.y + HALF_SCREEN_HEIGHT > activeLevel.actualHeight) activeLevel.y = SCREEN_HEIGHT - activeLevel.actualHeight;
 }
 
 // =============== UTILITY FUNCTIONS ===============
@@ -290,4 +312,28 @@ function loadImages(sources, callback) {
         };
         images[src].src = sources[src];
     }
+}
+
+// =============== AJAX CALLS ===============
+
+function onEnterHouse(houseId) {
+    $.ajax({
+        type: "GET",
+        url: "/zombaez/game_event/",
+        data: {
+            "event_type": "house_entered",
+            "house_id": houseId
+        },
+        success: function(data) {
+            $("#play-button").html(data);
+
+            activeLevel = hallLevel;
+            player.setLevel(activeLevel, 31 * activeLevel.tileWidth, 31 * activeLevel.tileHeight);
+            updateCamera();
+            renderScene();
+        },
+        error: function(data) {
+            alert("Failed to connect to engine!")
+        }
+    });
 }
