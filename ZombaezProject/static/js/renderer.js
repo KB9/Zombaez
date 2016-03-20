@@ -150,7 +150,7 @@ window.onunload = function(){
         type: "GET",
         url: "/zombaez/game_event/",
         data: {
-            "event_type": "pickle_on_quit"
+            "event_type": "pickle_on_close"
         },
         success: function(data) {
 	alert("You quit")
@@ -171,7 +171,7 @@ window.onload = function() {
         type: "GET",
         url: "/zombaez/game_event/",
         data: {
-            "event_type": "pickle_on_load"
+            "event_type": "unpickle_on_load"
         },
         success: function(data) {
 		alert("You started")
