@@ -67,6 +67,8 @@ Level.prototype.renderLayer = function(layerIndexList) {
                     context.drawImage(this.tilesetImage, clipX, clipY, this.tileWidth, this.tileHeight, tileX, tileY, this.tileWidth, this.tileHeight);
                     //context.font = "8px Arial";
                     //context.fillText(tileIndex, tileX, tileY);
+                    //context.fillText(r + ",", tileX, tileY + 8);
+                    //context.fillText(c, tileX, tileY + 16);
                 }
             }
         }
@@ -131,6 +133,23 @@ window.onload = function() {
 }
 
 // =============== GAME RELATED FUNCTIONS ===============
+
+// Door coordinates (specific to level): [row, column]
+var doorCoords = [
+    [13,3], [13,4], [10,18], [10,25], [13,38], [13,45], [13,52],
+    [29,42], [29,43], [28,51], [29,57],
+    [45,9], [45,16], [45,23], [45,42], [45,43], [43,54], [44,60], [44,61],
+    [61,3], [61,4], [58,11], [59,22], [61,49], [61,50]
+];
+
+function isOnDoor(level, x, y) {
+    x = Math.floor(x / level.tileWidth);
+    y = Math.floor(y / level.tileHeight);
+    for (var i = 0; i < doorCoords.length; i++) {
+        if (y == doorCoords[i][0] && x == doorCoords[i][1]) return true;
+    }
+    return false;
+}
 
 function onEnterHouse() {
     $.ajax({
@@ -211,12 +230,15 @@ function onKeyPressed(charCode) {
         if (player.y - 240 < 0) level.y = 0;
         if (player.y + 240 > (level.levelHeight * level.tileHeight)) level.y = 480 - (level.levelHeight * level.tileHeight);
 
+        // Check if player has walked onto a door
+        var playerCX = player.x + (player.width / 2);
+        var playerCY = player.y + (player.height / 2);
+        if (isOnDoor(level, playerCX, playerCY)) {
+            onEnterHouse();
+        }
+
         renderScene();
     }
-}
-
-function inArray(value, array) {
-    return array.indexOf(value) > -1;
 }
 
 // =============== UTILITY FUNCTIONS ===============
