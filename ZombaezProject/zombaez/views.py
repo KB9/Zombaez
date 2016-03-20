@@ -64,10 +64,10 @@ def game_event(request):
     
     get = request.GET;
     eventType = get["event_type"];
-    if eventType == "pickle_on_load":
-        print "event"
-    engine.initNewGame()
-    print "init"
-    pickleList = engine.pickleGame(request)
-    print "pickle"
+    
+    if eventType == "unpickle_on_load":
+        engine.unpickleGame(request)
+    elif eventType == "pickle_on_close":
+        engine.pickleGame(request)
+
     return HttpResponse(eventType)

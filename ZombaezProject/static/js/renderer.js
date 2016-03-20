@@ -169,15 +169,14 @@ var hallLevel;
 var activeLevel;
 
 var player;
-window.onunload = function(){
+window.onbeforeunload = function(){
  $.ajax({
         type: "GET",
         url: "/zombaez/game_event/",
         data: {
-            "event_type": "pickle_on_quit"
+            "event_type": "pickle_on_close"
         },
         success: function(data) {
-	alert("You quit")
             $("#play-button").html(data);
         },
         error: function(data) {
@@ -195,10 +194,9 @@ window.onload = function() {
         type: "GET",
         url: "/zombaez/game_event/",
         data: {
-            "event_type": "pickle_on_load"
+            "event_type": "unpickle_on_load"
         },
         success: function(data) {
-		alert("You started")
             $("#play-button").html(data);
         },
         error: function(data) {

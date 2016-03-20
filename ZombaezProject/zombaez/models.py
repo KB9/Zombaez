@@ -32,9 +32,9 @@ class Badge(models.Model):
 class Game(models.Model):
     user = models.OneToOneField(User)
 
-    player_state = models.CharField(max_length=8192, default=" ", blank = True)
-    game_state = models.CharField(max_length=8192, default=" ", blank = True)
-    update_state = models.CharField(max_length=8192, default=" ", blank = True)
+    player_state = models.CharField(max_length=8192, default="ccopy_reg _reconstructor p0 (czombaez.engine.game PlayerState p1 c__builtin__ object p2 Ntp3 Rp4 (dp5 S'food' p6 I3 sS'party' p7 I1 sS'kills' p8 I0 sS'ammo' p9 I2 sS'days' p10 I0 sb.", blank = False)
+    game_state = models.CharField(max_length=8192, default="STREET", blank = False)
+    update_state = models.CharField(max_length=8192, default="ccopy_reg _reconstructor p0 (czombaez.engine.game PlayerState p1 c__builtin__ object p2 Ntp3 Rp4 (dp5 S'food' p6 I0 sS'party' p7 I0 sS'kills' p8 I0 sS'ammo' p9 I0 sS'days' p10 I0 sb.", blank = False)
 
 
     def __unicode__(self):
