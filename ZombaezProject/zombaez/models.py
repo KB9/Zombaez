@@ -12,7 +12,7 @@ class User(models.Model):
     largest_party_size = models.IntegerField(default=0)
     total_food_collected = models.IntegerField(default=0)
     total_days_survived = models.IntegerField(default=0)
-    avatar = models.ImageField(upload_to='profile_images',blank=True)
+    #avatar = models.ImageField(upload_to='profile_images',blank=True)
 
     def __unicode__(self):
         return self.username

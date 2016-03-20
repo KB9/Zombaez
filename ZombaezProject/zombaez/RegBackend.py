@@ -4,7 +4,8 @@ from registration.forms import RegistrationForm
 
 def user_created(sender, user, request, **kwargs):
 	form = RegistrationForm(request.POST)
-	data = User(user=user, avatar = request.FILES['picture'])
+	#data = User(user=user, avatar = request.FILES['picture'])
+	data = User(user=user)
 	data.username = user.username
 	data.save()
 
