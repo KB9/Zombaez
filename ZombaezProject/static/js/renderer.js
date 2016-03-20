@@ -1,11 +1,18 @@
 // =============== TILED LEVELS ===============
 
+var levelId = 0;
+
 var Level = function(tilesetImage, baseImage, levelWidth, levelHeight, tileWidth, tileHeight) {
+    this.id = levelId++;
+
     this.tiles = [];
     this.topTiles = [];
     
     this.tilesetImage = tilesetImage;
     this.baseImage = baseImage;
+
+    // Data format: [[row, column, id], ...]
+    this.doorData = [];
 
     this.levelWidth = levelWidth;
     this.levelHeight = levelHeight;
@@ -13,6 +20,7 @@ var Level = function(tilesetImage, baseImage, levelWidth, levelHeight, tileWidth
     this.tileHeight = tileHeight;
     this.actualWidth = levelWidth * tileWidth;
     this.actualHeight = levelHeight * tileHeight;
+
     this.x = 0;
     this.y = 0;
     this.tileSpacing = 1;
@@ -99,6 +107,22 @@ Level.prototype.getTileIndex = function(layer, x, y) {
     var col = Math.floor(x / this.tileWidth);
     if (layer == 0) return this.tiles[row][col];
     return this.topTiles[row][col];
+}
+
+Level.prototype.setDoorData = function(doorDataList) {
+    this.doorData = doorDataList;
+}
+
+Level.prototype.getDoorIdInFrontOfPlayer = function(x, y) {
+    x = Math.floor(x / this.tileWidth);
+    y = Math.floor(y / this.tileHeight) - 1;   // -1 so that collision detection doesn't prevent entry
+    for (var i = 0; i < this.doorData.length; i++) {
+        var doorRow = this.doorData[i][0];
+        var doorCol = this.doorData[i][1];
+        var doorId = this.doorData[i][2];
+        if (y == doorRow && x == doorCol) return doorId;
+    }
+    return null;
 }
 
 // =============== CHARACTER ===============
@@ -188,6 +212,12 @@ window.onload = function() {
     loadImages(g_sources, function(g_images) {
         level = new Level(g_images.tileset, g_images.map_base_image, 64, 64, 16, 16);
         level.loadLevel("citymap");
+        level.setDoorData([
+            [13,3,0], [13,4,0], [13,9,1], [13,10,1], [10,18,2], [10,25,3], [13,38,4], [13,45,5], [13,52,6],
+            [29,42,7], [29,43,7], [28,51,8], [29,57,9],
+            [45,9,10], [45,16,11], [45,23,12], [45,42,13], [45,43,13], [43,54,14], [44,60,15], [44,61,15],
+            [61,3,16], [61,4,16], [58,11,17], [59,22,18], [61,49,19], [61,50,19]
+        ]);
 
         player = new Character(g_images.character, level);
 
@@ -203,16 +233,19 @@ window.onload = function() {
 // =============== GAME RELATED FUNCTIONS/VARIABLES ===============
 
 // Door data containing their respective coords and ids (specific to level): [row, column, id]
+/*
 var doorData = [
     [13,3,0], [13,4,0], [13,9,1], [13,10,1], [10,18,2], [10,25,3], [13,38,4], [13,45,5], [13,52,6],
     [29,42,7], [29,43,7], [28,51,8], [29,57,9],
     [45,9,10], [45,16,11], [45,23,12], [45,42,13], [45,43,13], [43,54,14], [44,60,15], [44,61,15],
     [61,3,16], [61,4,16], [58,11,17], [59,22,18], [61,49,19], [61,50,19]
 ];
+*/
 
 // IDs of non-blocking tiles
 var nonBlockingTiles = [751,714,831,832,794,795,823,822,789,747,741,710,821,857,858,900,748,711,746,820,859];
 
+/*
 function getDoorIdInFrontOfPlayer(level, x, y) {
     x = Math.floor(x / level.tileWidth);
     y = Math.floor(y / level.tileHeight) - 1;   // -1 so that collision detection doesn't prevent entry
@@ -224,6 +257,7 @@ function getDoorIdInFrontOfPlayer(level, x, y) {
     }
     return null;
 }
+*/
 
 function isNonBlockingTile(level, x, y) {
     return nonBlockingTiles.indexOf(level.getTileIndex(0, x, y)) > -1;
@@ -252,12 +286,15 @@ function debugDrawText(text) {
 }
 
 function clearCanvas() {
-    context.clearRect(0, 0, canvas.width, canvas.height);
+    //context.clearRect(0, 0, canvas.width, canvas.height);
+    context.rect(0, 0, canvas.width, canvas.height);
+    context.fillStyle = "black";
+    context.fill();
 }
 
 function onKeyPressed(charCode) {
     // W, A, S, D, E
-    var charCodeStrings = {"119": "up", "97": "left", "115": "down", "100": "right", "101": "enter"};
+    var charCodeStrings = {"119": "up", "97": "left", "115": "down", "100": "right", "101": "enter", "108": "coords"};
 
     // Carry out an action if the user presses a key in the dictionary
     if (charCode in charCodeStrings) {
@@ -299,11 +336,15 @@ function onKeyPressed(charCode) {
 
         // After position correction, allow player to enter house if they are in front of door
         if (charString == "enter") {
-            var doorId = getDoorIdInFrontOfPlayer(activeLevel, playerCX, playerCY);
+            var doorId = activeLevel.getDoorIdInFrontOfPlayer(playerCX, playerCY);
             if (doorId != null) {
-                onEnterHouse(doorId);
+                if (activeLevel.id == 0) onEnterHouse(doorId);
+                //if (activeLevel == hallLevel) onEnterRoom(doorId);
             }
         }
+
+        // DEBUG
+        if (charString == "coords") alert("Position: " + "(" + player.x + ", " + player.y + ")");
 
         updateCamera();
 
