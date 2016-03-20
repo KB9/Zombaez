@@ -15,11 +15,11 @@
 	<body>
 			<ul id="nav_bar">
 				<li id="logoItem" ><img class="logo" src="{% static "images/zombaez.png" %}" alt="ZombaeZ logo"/>
-				<li><a href="{% url 'home' %}">Home</a></li>
-				<li><a href="{% url 'how_to_play' %}">How to Play</a></li>
-				<li><a href="{% url 'leaderboards' %}">Leaderboard</a></li>
+				<li><a id="nav1" href="{% url 'home' %}">Home</a></li>
+				<li><a id="nav2" href="{% url 'how_to_play' %}">How to Play</a></li>
+				<li><a id="nav3" href="{% url 'leaderboards' %}">Leaderboard</a></li>
 				{% if user.is_authenticated %}
-				<li><a href="{% url 'play' %}">Play ZombaeZ</a></li>
+				<li><a id="nav4" href="{% url 'play' %}">Play ZombaeZ</a></li>
 				<li class="right drop_down"><a>{{user.username}}</a>
 					<div id="drop_down_content">
 						<a href="{% url 'user_profile' %}">User Profile</a>

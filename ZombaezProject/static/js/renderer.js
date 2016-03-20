@@ -115,6 +115,9 @@ var level;
 var player;
 
 window.onload = function() {
+	
+    var c = document.getElementById("nav4");//menu stuff - don't delete - David
+    c.className += " active"; //menu stuff - don't delete - David
     canvas = document.getElementById("game_canvas");
     context = canvas.getContext("2d");
 

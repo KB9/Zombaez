@@ -26,7 +26,12 @@ def how_to_play(request):
     return render(request, 'zombaez/how_to_play.html', context_dict)
 
 def leaderboards(request):
-    context_dict = {"leaderboards": "TBC - Text regarding leaderboards in the game."}
+    context_dict = {"total_games_played":User.objects.order_by("-total_games_played")[:10]}
+    context_dict["total_ammo_collected"] = User.objects.order_by("-total_ammo_collected")[:10]
+    context_dict["total_food_collected"] = User.objects.order_by("-total_food_collected")[:10]
+    context_dict["total_days_survived"] = User.objects.order_by("-total_days_survived")[:10]
+    context_dict["largest_party_size"] = User.objects.order_by("-largest_party_size")[:10]
+    context_dict["zombies_killed"] = User.objects.order_by("-zombies_killed")[:10]
     return render(request, 'zombaez/leaderboards.html', context_dict)
 
 

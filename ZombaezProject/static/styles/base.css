@@ -2,7 +2,7 @@ body{
 	margin:0;
 	padding:0;
 	background-image: url("../images/background.png");
-	min-width:846px;
+	min-width:1052px;
 }
 		
 #nav_bar{
@@ -11,7 +11,7 @@ body{
 	margin:0;
 	padding:0;
 	background-color: #701A1A;
-	box-shadow: 0px 5px 20px #701A1A
+	box-shadow: 0px 5px 20px #701A1A;
 
 }
 	
@@ -61,6 +61,32 @@ body{
 	text-decoration: none;
 }
 		
+#nav_bar a.active{
+	background-color: #CECECE;
+	color: #701A1A;
+	border-radius:10px;
+	box-shadow: 0px 0px 5px #CECECE;
+}
+
+#nav2.active{
+	background-color: #CECECE;
+	color: #701A1A;
+	border-radius:10px;
+	box-shadow: 0px 0px 5px #CECECE;
+}}
+#nav3.active{
+	background-color: #CECECE;
+	color: #701A1A;
+	border-radius:10px;
+	box-shadow: 0px 0px 5px #CECECE;
+}
+#nav4.active{
+	background-color: #CECECE;
+	color: #701A1A;
+	border-radius:10px;
+	box-shadow: 0px 0px 5px #CECECE;
+}
+
 #nav_bar li.right{
 	float: right;
 }
