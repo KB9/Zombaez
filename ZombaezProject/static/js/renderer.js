@@ -193,10 +193,13 @@ DialogMenu.prototype.render = function(context) {
         }
         context.fillText(this.optionsList[i], this.x + this.optionsOffset, currentY);
     }
+
+    menuMode = true;
 }
 
 DialogMenu.prototype.onOptionSelected = function(position) {
-    this.functionsList[position]();
+    var func = this.functionsList[position];
+    if (func != null) func();
 }
 
 // =============== INITIALISATION AND GLOBALS ===============
@@ -284,6 +287,7 @@ window.onload = function() {
 
         activeLevel = level;
 
+        /*
         dialog = new DialogMenu(
             "You have encountered a zombae holy shit wtf u gonna do",
             [
@@ -300,6 +304,7 @@ window.onload = function() {
             ],
             0, 0, canvas.width, canvas.height
         );
+        */
 
         updateCamera();
         renderScene();
@@ -323,11 +328,6 @@ var playerLastStreetY;
 
 function isNonBlockingTile(level, x, y) {
     return nonBlockingTiles.indexOf(level.getTileIndex(0, x, y)) > -1;
-}
-
-function showMenu() {
-    dialog.render(context);
-    menuMode = true;
 }
 
 function renderHUD() {
@@ -569,7 +569,50 @@ function onEnterRoom(roomId) {
             },
             success: function(data) {
                 $("#play-button").html(data);
-                showMenu();
+                data = JSON.parse(data);
+
+                if (data["room_zombies"] > 0) {
+                    dialog = new DialogMenu(
+                        "You have encountered a zombae holy shit wtf u gonna do",
+                        [
+                            "Fight the zombae",
+                            "Run from the zombae"
+                        ],
+                        [
+                            function() {
+                                onFightZombie();
+                            },
+                            function() {
+                                onRunFromZombie();
+                            },
+                        ],
+                        0, 0, canvas.width, canvas.height
+                    );
+                    dialog.render(context);
+                } else {
+                    dialog = new DialogMenu(
+                        "You have found:",
+                        [
+                            "Food: " + data["room_food"],
+                            "People: " + data["room_people"],
+                            "Ammo: "+ data["room_ammo"],
+                            "",
+                            "OK"
+                        ],
+                        [
+                            null,
+                            null,
+                            null,
+                            null,
+                            function() {
+                                menuMode = false;
+                                onExitRoom();
+                            }
+                        ],
+                        0, 0, canvas.width, canvas.height
+                    );
+                    dialog.render(context);
+                }
             },
             error: function(data) {
                 alert("Failed to connect to engine!");
@@ -578,6 +621,23 @@ function onEnterRoom(roomId) {
     } else {
         onExitHouse();
     }
+}
+
+function onExitRoom() {
+    $.ajax({
+        type: "GET",
+        url: "/zombaez/game_event/",
+        data: {
+            "event_type": "room_exited",
+        },
+        success: function(data) {
+            $("#play-button").html(data);
+            renderScene();
+        },
+        error: function(data) {
+            alert("Internal server error: 500");
+        }
+    });
 }
 
 function onFightZombie() {
@@ -590,6 +650,7 @@ function onFightZombie() {
         },
         success: function(data) {
             $("#play-button").html(data);
+            // TODO: I don't know how to deal with multiple zombies :(
         },
         error: function(data) {
             alert("Internal server error: 500");
