@@ -73,11 +73,11 @@ def game_event(request):
         engine.pickleGame(request)
     elif eventType=="house_entered":
         print engine
-        print engine.game
-        print engine.game.street_factory
-        print engine.game.street_factory.street
-        print engine.game.street_factory.street.house_list
-        game_info["num_of_rooms"] = engine.game.street_factory.street.house_list[get["house_id"]].num_of_rooms
-        print game_info["num_of_rooms"]
+        #print engine.game
+        #print engine.game.street_factory
+        #print engine.game.street_factory.street
+        #print engine.game.street_factory.street.house_list
+        #game_info["num_of_rooms"] = engine.game.street_factory.street.house_list[get["house_id"]].num_of_rooms
+        #print game_info["num_of_rooms"]
 
     return HttpResponse(json.dumps(game_info))

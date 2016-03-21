@@ -134,7 +134,7 @@ Level.prototype.getDoorIdInFrontOfPlayer = function(x, y) {
     return null;
 }
 
-// =============== CHARACTER ===============
+// =============== CHARACTERS ===============
 
 var Character = function(charImage, level) {
     this.charImage = charImage;
@@ -153,6 +153,27 @@ Character.prototype.setLevel = function(newLevel, x, y) {
     this.level = newLevel;
     this.x = x;
     this.y = y;
+}
+
+// =============== MENUS ===============
+
+var DialogMenu = function(title, optionsList, x, y, width, height) {
+    this.title = title;
+    this.optionsList = optionsList;
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+}
+
+DialogMenu.prototype.show = function(context) {
+    context.rect(this.x, this.y, this.width, this.height);
+    context.fillStyle = "white";
+    context.fill();
+
+    context.font = "30px Arial";
+    context.fillStyle = "black";
+    context.fillText(this.title, this.x, this.y);
 }
 
 // =============== INITIALISATION AND GLOBALS ===============
@@ -176,6 +197,7 @@ var context;
 var level;
 var hallLevel;
 var activeLevel;
+var dialog;
 
 var player;
 window.onbeforeunload = function(){
@@ -235,6 +257,8 @@ window.onload = function() {
 
         activeLevel = level;
 
+        dialog = new DialogMenu("title text", ["hi"], 0, 0, 100, 100);
+
         updateCamera();
         renderScene();
     });
@@ -250,7 +274,7 @@ function isNonBlockingTile(level, x, y) {
 }
 
 function showMenu() {
-    
+    dialog.show(context);
 }
 
 function renderScene() {
@@ -415,7 +439,6 @@ function onEnterHouse(houseId) {
 }
 
 function onEnterRoom(roomId) {
-    alert("boizzz");
     $.ajax({
         type: "GET",
         url: "/zombaez/game_event/",
@@ -425,6 +448,7 @@ function onEnterRoom(roomId) {
         },
         success: function(data) {
             $("#play-button").html(data);
+            showMenu();
         },
         error: function(data) {
             alert("Failed to connect to engine!");
