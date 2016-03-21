@@ -49,8 +49,8 @@ class StreetFactory(object):
 
         # how many houses in street?
 
-        number_of_houses = 19 #random street size generation removed due to tile map
-
+        number_of_houses = 20 #random street size generation removed due to tile map
+        
         # name of street
         street_name = '{0} {1}'.format(self.faker.street_name(), self.faker.street_suffix())
         house_list = []

@@ -23,16 +23,29 @@ def pickleGame(request):
     data.game_state = pickle.dumps(game.game_state)
     data.save()
 
+def postStatus():
+    global game
+    player_status={}
+    print game
+    print game.time_left()
+    player_status["time_left"]=game.time_left()
+    print 1
+    player_status["player_ammo"]=PlayerState.ammo
+    print 2
+    player_status["player_party"]=PlayerState.party
+    print 3
+    player_status["player_food"]=PlayerState.food
+    print 4
+    player_status["player_kills"]=PlayerState.kills
+    print 5
+    return player_status
 
 def unpickleGame(request):
     initNewGame()
     user = userGame.objects.get(user=request.user.user)
     game.player_state = pickle.loads(user.player_state)
     game.update_state = pickle.loads(user.update_state)
-    game.game_state = pickle.loads(user.game_state)
-
-
-    
+    game.game_state = pickle.loads(user.game_state)    
 
 def main():
 

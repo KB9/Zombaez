@@ -65,14 +65,29 @@ def game_event(request):
 
     get = request.GET
     eventType = get["event_type"]
-    game_info = {}
+    print "call poststatus"
+    game_info = engine.postStatus()
+    print "post status called"
 
     if eventType == "unpickle_on_load":
         engine.unpickleGame(request)
     elif eventType == "pickle_on_close":
         engine.pickleGame(request)
     elif eventType=="house_entered":
-        game_info["num_of_rooms"] = engine.game.street.house_list[int(get["house_id"])].num_of_rooms
-        print game_info["num_of_rooms"]
-
+        print engine.game.street.house_list[int(get["house_id"])]
+        current_house=engine.game.street.house_list[int(get["house_id"])]
+        print current_house
+        game_info["num_of_rooms"] = current_house.num_of_rooms
+        engine.game.update_time_left(engine.PlayerState.move_time())
+    elif eventType=="room_entered":
+        current_room = current_house.room_list[int(get["room_id"])]
+        print current_room
+        game_info["room_people"]=current_room.people
+        game_info["room_food"]=current_room.food
+        game_info["room_ammo"]=current_room.ammo
+        game_info["room_zombies"]=current_room.zombies
+        engine.game.update_time_left(engine.PlayerState.search_time())
+        
+        
+    print game_info
     return HttpResponse(json.dumps(game_info))
