@@ -14,7 +14,6 @@ def initNewGame():
     global game
     game = Game()
     game.start_new_day()
-    return game
 
 def pickleGame(request):
     data = userGame.objects.get(user=request.user.user)
@@ -24,20 +23,12 @@ def pickleGame(request):
     data.save()
 
 def postStatus():
-    global game
     player_status={}
-    print game
-    print game.time_left()
-    player_status["time_left"]=game.time_left()
-    print 1
-    player_status["player_ammo"]=PlayerState.ammo
-    print 2
-    player_status["player_party"]=PlayerState.party
-    print 3
-    player_status["player_food"]=PlayerState.food
-    print 4
-    player_status["player_kills"]=PlayerState.kills
-    print 5
+    player_status["time_left"]=game.time_left
+    player_status["player_ammo"]=game.player_state.ammo
+    player_status["player_party"]=game.player_state.party
+    player_status["player_food"]=game.player_state.food
+    player_status["player_kills"]=game.player_state.kills
     return player_status
 
 def unpickleGame(request):
@@ -54,7 +45,6 @@ def main():
     # display the current state of the game,
     # then check what the player wants to do
     
-    print "fack"
     #g = Game()
     #g.start_new_day()
 """
