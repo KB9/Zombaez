@@ -4,8 +4,10 @@ from registration.forms import RegistrationForm
 
 def user_created(sender, user, request, **kwargs):
 	form = RegistrationForm(request.POST)
-	userData = User(user=user, avatar = request.FILES['picture'])
-	userData = User(user=user)
+	if 'picture' in request.FILES:
+                userData = User(user=user, avatar = request.FILES['picture'])
+	else:
+                userData = User(user=user)
 	userData.username = user.username
 	userData.save()
 	gameData = Game(user=request.user.user)
