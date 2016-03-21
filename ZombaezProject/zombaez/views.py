@@ -75,7 +75,7 @@ def game_event(request):
         engine.pickleGame(request)
         
     elif eventType=="house_entered":
-        current_house=engine.game.street.house_list[int(get["house_id"])
+        current_house=engine.game.street.house_list[int(get["house_id"])]
         game_info["num_of_rooms"] = current_house.num_of_rooms
         engine.game.update_time_left(engine.game.player_state.move_time)
                                                     

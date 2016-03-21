@@ -493,6 +493,22 @@ function onEnterHouse(houseId) {
     });
 }
 
+function onExitHouse() {
+    $.ajax({
+        type: "GET",
+        url: "/zombaez/game_event/",
+        data: {
+            "event_type": "house_exited",
+        },
+        success: function(data) {
+            $("#play-button").html(data);
+        },
+        error: function(data) {
+            alert("Internal server error: 500");
+        }
+    });
+}
+
 function onEnterRoom(roomId) {
     if (roomId > -1) {
         $.ajax({
