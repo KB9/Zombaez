@@ -45,6 +45,7 @@ def main():
     # display the current state of the game,
     # then check what the player wants to do
     
+    print "fack"
     #g = Game()
     #g.start_new_day()
 """
