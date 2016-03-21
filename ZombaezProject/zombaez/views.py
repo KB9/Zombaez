@@ -73,16 +73,18 @@ def game_event(request):
 
     if eventType == "pickle_on_close":
         engine.pickleGame(request)
+        
     elif eventType=="house_entered":
         current_house=engine.game.street.house_list[int(get["house_id"])]
         game_info["num_of_rooms"] = current_house.num_of_rooms
-        engine.game.update_time_left(engine.PlayerState.move_time())
+        engine.game.update_time_left(engine.game.player_state.move_time)
+                                                    
     elif eventType=="room_entered":
         current_room = current_house.room_list[int(get["room_id"])]
         game_info["room_people"]=current_room.people
         game_info["room_food"]=current_room.food
         game_info["room_ammo"]=current_room.ammo
         game_info["room_zombies"]=current_room.zombies
-        engine.game.update_time_left(engine.PlayerState.search_time())
+        engine.game.update_time_left(engine.game.player_state.search_time)
         
     return HttpResponse(json.dumps(game_info))

@@ -29,6 +29,7 @@ def postStatus():
     player_status["player_party"]=game.player_state.party
     player_status["player_food"]=game.player_state.food
     player_status["player_kills"]=game.player_state.kills
+    player_status["player_day"]=game.player_state.days
     return player_status
 
 def unpickleGame(request):
