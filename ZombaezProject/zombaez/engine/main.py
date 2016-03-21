@@ -30,8 +30,9 @@ def unpickleGame(request):
     game.update_state = pickle.loads(user.update_state)
     game.game_state = pickle.loads(user.game_state)
 
+
     
-"""
+
 def main():
 
     # this is the basic game process
@@ -40,8 +41,9 @@ def main():
     # then check what the player wants to do
 
     g = Game()
-    while not g.is_game_over():
-        #kick off the day
+	g.start_new_day()
+"""
+		#kick off the day
         g.start_new_day()
         while not g.is_day_over() and not g.is_game_over():
             os.system("clear")
@@ -54,21 +56,10 @@ def main():
 
 
     print "Aaarrrgh: You are dead! Game Over!"
-"""
+
 
 
 def show_game_screen(g):
-    print ""
-    print "------------------------------------------"
-    print "ZZZZZ   OOO    MM    MM  BBBB   III  EEEEE"
-    print "   Z   OO OO   MMM  MMM  B   B   I   E"
-    print "  Z   OO   OO  MM MM MM  BBBB    I   EEE"
-    print " Z     OO OO   MM    MM  B   B   I   E"
-    print "ZZZZZ   OOO    MM    MM  BBBBB  III  EEEEE"
-    print "------------------------------------------"
-    print ""
-    print "Player Status"
-    print "------------------------------------------"
     print g.player_state
     print ""
     print "Day: {0}, Time left in day: {1}".format(g.player_state.days, g.time_left)
@@ -150,6 +141,6 @@ def show_update_template(g):
 
     if g.update_state.days > 0:
         print "New Day: You survived another day!"
-
+"""
 if __name__ ==  "__main__":
     main()

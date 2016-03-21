@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from zombaez.models import Badge, User
 from engine import main as engine
 from threading import Thread
+import json
 
 def home(request):
     context_dict = {'test': "test context dict entry"}
@@ -64,10 +65,15 @@ def game_event(request):
     
     get = request.GET;
     eventType = get["event_type"];
+	game_info = {}
     
     if eventType == "unpickle_on_load":
         engine.unpickleGame(request)
     elif eventType == "pickle_on_close":
         engine.pickleGame(request)
+	
+	while len(get[]>0):
+		if eventType=="house_entered":
+			game_info["num_of_rooms"] = engine.game.street.house_list[get["house_id"]].num_of_rooms
 
-    return HttpResponse(eventType)
+    return HttpResponse(eventType, json.dumps(game_info))

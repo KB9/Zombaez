@@ -15,19 +15,19 @@ class Street(object):
     def get_current_house(self):
         return self.house_list[self.current_house]
 
-    def move_to_next_house(self):
+    def move_to_next_house(self):#no longer required
         if self.current_house < (self.num_of_houses-1):
             self.current_house += 1
             return True
         return False
 
-    def move_to_house(self,i):
+    def move_to_house(self,i):#no longer required
         if (i >= 0) and (i < self.num_of_houses):
             self.current_house = i
             return True
         return False
 
-    def anymore_house(self):
+    def anymore_house(self):#no longer required
         if self.current_house < self.num_of_houses:
             return True
         return False
@@ -45,7 +45,7 @@ class StreetFactory(object):
 
         # how many houses in street?
 
-        number_of_houses = random.randint(5,8)
+        number_of_houses = 19 #random street size generation removed due to tile map
 
         # name of street
         street_name = '{0} {1}'.format(self.faker.street_name(), self.faker.street_suffix())
