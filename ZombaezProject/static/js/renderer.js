@@ -546,6 +546,11 @@ function onExitHouse() {
         },
         success: function(data) {
             $("#play-button").html(data);
+
+            activeLevel = level;
+            player.setLevel(activeLevel, playerLastStreetX, playerLastStreetY);
+            updateCamera();
+            renderScene();
         },
         error: function(data) {
             alert("Internal server error: 500");
@@ -571,10 +576,7 @@ function onEnterRoom(roomId) {
             }
         });
     } else {
-        activeLevel = level;
-        player.setLevel(activeLevel, playerLastStreetX, playerLastStreetY);
-        updateCamera();
-        renderScene();
+        onExitHouse();
     }
 }
 
@@ -607,6 +609,10 @@ function onRunFromZombie() {
             $("#play-button").html(data);
 
             menuMode = false;
+            
+            activeLevel = level;
+            player.setLevel(activeLevel, playerLastStreetX, playerLastStreetY);
+            updateCamera();
             renderScene();
         },
         error: function(data) {
