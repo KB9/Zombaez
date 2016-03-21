@@ -157,23 +157,46 @@ Character.prototype.setLevel = function(newLevel, x, y) {
 
 // =============== MENUS ===============
 
-var DialogMenu = function(title, optionsList, x, y, width, height) {
+var DialogMenu = function(title, optionsList, functionsList, x, y, width, height) {
     this.title = title;
     this.optionsList = optionsList;
+    this.functionsList = functionsList;
+
     this.x = x;
     this.y = y;
     this.width = width;
     this.height = height;
+    this.halfWidth = width / 2;
+    this.halfHeight = height / 2;
+
+    this.titleSize = 24;
+    this.optionsSize = 16;
+    this.optionsOffset = 50;
+
+    this.cursorPos = 0;
 }
 
-DialogMenu.prototype.show = function(context) {
-    context.rect(this.x, this.y, this.width, this.height);
-    context.fillStyle = "white";
-    context.fill();
-
-    context.font = "30px Arial";
+// Title takes 1/4 of menu, options take bottom 1/2
+DialogMenu.prototype.render = function(context) {
     context.fillStyle = "black";
-    context.fillText(this.title, this.x, this.y);
+    context.fillRect(this.x, this.y, this.width, this.height);
+
+    context.font = this.titleSize + "px Arial";
+    context.fillStyle = "red";
+    context.fillText(this.title, this.x, this.y + 24);
+
+    context.font = this.optionsSize + "px Arial";
+    for (var i = 0; i < this.optionsList.length; i++) {
+        var currentY = (this.y + this.halfHeight + this.optionsSize) + (i * (this.halfHeight / this.optionsList.length));
+        if (i == this.cursorPos) {
+            context.fillText("->", (this.x + this.optionsOffset) - (this.optionsOffset / 2), currentY);
+        }
+        context.fillText(this.optionsList[i], this.x + this.optionsOffset, currentY);
+    }
+}
+
+DialogMenu.prototype.onOptionSelected = function(position) {
+    this.functionsList[position]();
 }
 
 // =============== INITIALISATION AND GLOBALS ===============
@@ -198,6 +221,8 @@ var level;
 var hallLevel;
 var activeLevel;
 var dialog;
+
+var menuMode = false;
 
 var player;
 window.onbeforeunload = function(){
@@ -251,7 +276,22 @@ window.onload = function() {
 
         activeLevel = level;
 
-        dialog = new DialogMenu("title text", ["hi"], 0, 0, 100, 100);
+        dialog = new DialogMenu(
+            "You have encountered a zombae holy shit wtf u gonna do",
+            [
+                "Fight the zombae",
+                "Run from the zombae"
+            ],
+            [
+                function() {
+                    onFightZombie();
+                },
+                function() {
+                    onRunFromZombie();
+                },
+            ],
+            0, 0, canvas.width, canvas.height
+        );
 
         updateCamera();
         renderScene();
@@ -263,12 +303,16 @@ window.onload = function() {
 // IDs of non-blocking tiles
 var nonBlockingTiles = [751,714,831,832,794,795,823,822,789,747,741,710,821,857,858,900,748,711,746,820,859,709];
 
+var playerLastStreetX;
+var playerLastStreetY;
+
 function isNonBlockingTile(level, x, y) {
     return nonBlockingTiles.indexOf(level.getTileIndex(0, x, y)) > -1;
 }
 
 function showMenu() {
-    dialog.show(context);
+    dialog.render(context);
+    menuMode = true;
 }
 
 function renderScene() {
@@ -286,13 +330,6 @@ function renderScene() {
 
 // =============== CANVAS RELATED FUNCTIONS ===============
 
-function debugDrawText(text) {
-    clearCanvas();
-
-    context.font = "30px Arial";
-    context.fillText(text, 10, 50);
-}
-
 function clearCanvas() {
     context.rect(0, 0, canvas.width, canvas.height);
     context.fillStyle = "black";
@@ -307,55 +344,72 @@ function onKeyPressed(charCode) {
     if (charCode in charCodeStrings) {
         var charString = charCodeStrings[charCode];
 
-        var prevPlayerX = player.x;
-        var prevPlayerY = player.y;
+        if (!menuMode) {
+            var prevPlayerX = player.x;
+            var prevPlayerY = player.y;
 
-        switch (charString) {
-            case "up":
-                player.y -= 5;
-                break;
-            case "left":
-                player.x -= 5;
-                break;
-            case "down":
-                player.y += 5;
-                break;
-            case "right":
-                player.x += 5;
-                break;
-        }
+            switch (charString) {
+                case "up":
+                    player.y -= 5;
+                    break;
+                case "left":
+                    player.x -= 5;
+                    break;
+                case "down":
+                    player.y += 5;
+                    break;
+                case "right":
+                    player.x += 5;
+                    break;
+            }
 
-        // Stops the character walking out of the level
-        if (player.x < 0) player.x = 0;
-        if (player.y < 0) player.y = 0;
-        if ((player.x + player.width) > activeLevel.actualWidth) player.x = activeLevel.actualWidth - player.width;
-        if ((player.y + player.height) > activeLevel.actualHeight) player.y = activeLevel.actualHeight - player.height;
+            // Stops the character walking out of the level
+            if (player.x < 0) player.x = 0;
+            if (player.y < 0) player.y = 0;
+            if ((player.x + player.width) > activeLevel.actualWidth) player.x = activeLevel.actualWidth - player.width;
+            if ((player.y + player.height) > activeLevel.actualHeight) player.y = activeLevel.actualHeight - player.height;
 
-        // Gets center coordinates of player
-        var playerCX = player.x + (player.width / 2);
-        var playerCY = player.y + (player.height / 2);
+            // Gets center coordinates of player
+            var playerCX = player.x + (player.width / 2);
+            var playerCY = player.y + (player.height / 2);
 
-        // Corrects player position if on a blocking tile
-        if (!isNonBlockingTile(activeLevel, playerCX, playerCY)) {
-            player.x = prevPlayerX;
-            player.y = prevPlayerY;
-        }
+            // Corrects player position if on a blocking tile
+            if (!isNonBlockingTile(activeLevel, playerCX, playerCY)) {
+                player.x = prevPlayerX;
+                player.y = prevPlayerY;
+            }
 
-        // After position correction, allow player to enter house if they are in front of door
-        if (charString == "enter") {
-            var doorId = activeLevel.getDoorIdInFrontOfPlayer(playerCX, playerCY);
-            if (doorId != null) {
-                // EW, FIX THIS!!!!!
-                if (activeLevel.id == 0) onEnterHouse(doorId);
-                if (activeLevel.id == 1) onEnterRoom(doorId);
+            // After position correction, allow player to enter house if they are in front of door
+            if (charString == "enter") {
+                var doorId = activeLevel.getDoorIdInFrontOfPlayer(playerCX, playerCY);
+                if (doorId != null) {
+                    // EW, FIX THIS!!!!!
+                    if (activeLevel.id == 0) onEnterHouse(doorId);
+                    if (activeLevel.id == 1) onEnterRoom(doorId);
+                }
+            }
+
+            // DEBUG
+            if (charString == "coords") alert("Position: " + "(" + player.x + ", " + player.y + ")" + " [" + Math.floor(player.x / 16) + ", " + Math.floor(player.y / 16) + "]");
+
+            updateCamera();
+            renderScene();
+        } else {
+            switch (charString) {
+                case "up":
+                    if (dialog.cursorPos > 0) dialog.cursorPos--;
+                    break;
+                case "down":
+                    if (dialog.cursorPos < dialog.optionsList.length - 1) dialog.cursorPos++;
+                    break;
+            }
+
+            dialog.render(context);
+
+            if (charString == "enter") {
+                dialog.onOptionSelected(dialog.cursorPos);
             }
         }
-
-        // DEBUG
-        if (charString == "coords") alert("Position: " + "(" + player.x + ", " + player.y + ")" + " [" + Math.floor(player.x / 16) + ", " + Math.floor(player.y / 16) + "]");
-
-        updateCamera();
-        renderScene();
     }
 }
 
@@ -409,18 +463,25 @@ function onEnterHouse(houseId) {
             "house_id": houseId
         },
         success: function(data) {
-            //$("#play-button").html(data);
+            $("#play-button").html(data);
             var roomCount = fromJSON(data)["num_of_rooms"];
-            alert(roomCount);
 
             activeLevel = hallLevel;
 
-            var doorsList = [];
-            for (var i = 0; i < roomCount; i++) {
-                doorsList.push([24, 19 + (i * 2), i]);
-                activeLevel.topTiles[24][19 + (i * 2)] = 986;
+            // Add the exit door with a unique ID of -1
+            var doorsList = [[35, 31, -1]];
+            for (var i = 0; i < 13; i++) {
+                var r = 24;
+                var c = 19 + (i * 2);
+                // Adds the door link to the level if it is included
+                if (i < roomCount) doorsList.push([r, c, i]);
+                // Resets doors then redraws the doors if they're included
+                activeLevel.topTiles[r][c] = i < roomCount ? 986 : -1;
             }
             activeLevel.setDoorData(doorsList);
+
+            playerLastStreetX = player.x;
+            playerLastStreetY = player.y;
 
             player.setLevel(activeLevel, 31 * activeLevel.tileWidth, 36 * activeLevel.tileHeight);
             updateCamera();
@@ -433,19 +494,63 @@ function onEnterHouse(houseId) {
 }
 
 function onEnterRoom(roomId) {
+    if (roomId > -1) {
+        $.ajax({
+            type: "GET",
+            url: "/zombaez/game_event/",
+            data: {
+                "event_type": "room_entered",
+                "room_id": roomId
+            },
+            success: function(data) {
+                $("#play-button").html(data);
+                showMenu();
+            },
+            error: function(data) {
+                alert("Failed to connect to engine!");
+            }
+        });
+    } else {
+        activeLevel = level;
+        player.setLevel(activeLevel, playerLastStreetX, playerLastStreetY);
+        updateCamera();
+        renderScene();
+    }
+}
+
+function onFightZombie() {
+    alert("Fought zombie!");
     $.ajax({
         type: "GET",
         url: "/zombaez/game_event/",
         data: {
-            "event_type": "room_entered",
-            "room_id": roomId
+            "event_type": "zombie_fight"
         },
         success: function(data) {
             $("#play-button").html(data);
-            showMenu();
         },
         error: function(data) {
-            alert("Failed to connect to engine!");
+            alert("Internal server error: 500");
+        }
+    });
+}
+
+function onRunFromZombie() {
+    alert("Ran from zombie!");
+    $.ajax({
+        type: "GET",
+        url: "/zombaez/game_event/",
+        data: {
+            "event_type": "zombie_run"
+        },
+        success: function(data) {
+            $("#play-button").html(data);
+
+            menuMode = false;
+            renderScene();
+        },
+        error: function(data) {
+            alert("Internal server error: 500");
         }
     });
 }
