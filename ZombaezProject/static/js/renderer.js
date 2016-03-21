@@ -473,10 +473,13 @@ function onEnterHouse(houseId) {
 
             // Add the exit door with a unique ID of -1
             var doorsList = [[35, 31, -1]];
-
-            for (var i = 0; i < roomCount; i++) {
-                doorsList.push([24, 19 + (i * 2), i]);
-                activeLevel.topTiles[24][19 + (i * 2)] = 986;
+            for (var i = 0; i < 13; i++) {
+                var r = 24;
+                var c = 19 + (i * 2);
+                // Adds the door link to the level if it is included
+                if (i < roomCount) doorsList.push([r, c, i]);
+                // Resets doors then redraws the doors if they're included
+                activeLevel.topTiles[r][c] = i < roomCount ? 986 : -1;
             }
             activeLevel.setDoorData(doorsList);
 
