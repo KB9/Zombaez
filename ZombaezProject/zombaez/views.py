@@ -60,7 +60,7 @@ def play(request):
 @login_required
 # REQUIRED PARAMETERS: event_type
 def game_event(request):
-   
+    game_info={}
     if request.method != "GET":
         return
 
