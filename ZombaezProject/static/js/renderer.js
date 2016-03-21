@@ -233,7 +233,12 @@ window.onbeforeunload = function(){
             "event_type": "pickle_on_close"
         },
         success: function(data) {
-            $("#play-button").html(data);
+        },
+		error: function (xmlHttpRequest, data) {
+        if(xmlHttpRequest.readyState == 0 || xmlHttpRequest.status == 0) 
+              return;
+        else
+              alert("actual error");
         }
     });
 }
@@ -251,8 +256,6 @@ window.onload = function() {
         },
         success: function(data) {
             $("#play-button").html(data);
-            data = JSON.parse(data);
-            updatePlayerStats(data["player_party"], data["player_ammo"], data["time_left"], data["player_day"], data["player_food"], data["player_kills"]);
         }
     });
 //Canvas/Game code
@@ -302,13 +305,6 @@ window.onload = function() {
 
 // =============== GAME RELATED FUNCTIONS/VARIABLES ===============
 
-var playerParty;
-var playerAmmo;
-var playerTime;
-var playerDay;
-var playerFood;
-var playerKills;
-
 // IDs of non-blocking tiles
 var nonBlockingTiles = [751,714,831,832,794,795,823,822,789,747,741,710,821,857,858,900,748,711,746,820,859,709];
 
@@ -324,30 +320,6 @@ function showMenu() {
     menuMode = true;
 }
 
-function renderHUD() {
-    context.fillStyle = "black";
-    context.fillRect(0, 0, 150, 100);
-
-    context.font = "16px Arial";
-    context.fillStyle = "red";
-
-    context.fillText("Party: " + playerParty, 0, 16, 150);
-    context.fillText("Ammo: " + playerAmmo, 0, 32, 150);
-    context.fillText("Time: " + playerTime, 0, 48, 150);
-    context.fillText("Day: " + playerDay, 0, 64, 150);
-    context.fillText("Food: " + playerFood, 0, 80, 150);
-    context.fillText("Kills: " + playerKills, 0, 96, 150);
-}
-
-function updatePlayerStats(party, ammo, time, day, food, kills) {
-    playerParty = party;
-    playerAmmo = ammo;
-    playerTime = time;
-    playerDay = day;
-    playerFood = food;
-    playerKills = kills;
-}
-
 function renderScene() {
     clearCanvas();
 
@@ -359,8 +331,6 @@ function renderScene() {
     if (activeLevel.topTiles.length > 0) {
         activeLevel.renderLayer(activeLevel.topTiles);
     }
-
-    renderHUD();
 }
 
 // =============== CANVAS RELATED FUNCTIONS ===============
@@ -499,8 +469,7 @@ function onEnterHouse(houseId) {
         },
         success: function(data) {
             $("#play-button").html(data);
-            data = JSON.parse(data);
-            var roomCount = data["num_of_rooms"];
+            var roomCount = fromJSON(data)["num_of_rooms"];
 
             activeLevel = hallLevel;
 
@@ -519,30 +488,12 @@ function onEnterHouse(houseId) {
             playerLastStreetX = player.x;
             playerLastStreetY = player.y;
 
-            updatePlayerStats(data["player_party"], data["player_ammo"], data["time_left"], data["player_day"], data["player_food"], data["player_kills"]);
-
             player.setLevel(activeLevel, 31 * activeLevel.tileWidth, 36 * activeLevel.tileHeight);
             updateCamera();
             renderScene();
         },
         error: function(data) {
             alert("Failed to connect to engine!");
-        }
-    });
-}
-
-function onExitHouse() {
-    $.ajax({
-        type: "GET",
-        url: "/zombaez/game_event/",
-        data: {
-            "event_type": "house_exited",
-        },
-        success: function(data) {
-            $("#play-button").html(data);
-        },
-        error: function(data) {
-            alert("Internal server error: 500");
         }
     });
 }

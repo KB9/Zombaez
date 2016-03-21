@@ -59,7 +59,8 @@ def play(request):
 
 @login_required
 # REQUIRED PARAMETERS: event_type
-def game_event(request): 
+def game_event(request):
+    game_info={}
     if request.method != "GET":
         return
 
@@ -69,7 +70,7 @@ def game_event(request):
     if eventType == "unpickle_on_load":
         engine.unpickleGame(request)
 
-    game_info = engine.postStatus()
+   
 
     if eventType == "pickle_on_close":
         engine.pickleGame(request)
@@ -87,4 +88,5 @@ def game_event(request):
         game_info["room_zombies"]=current_room.zombies
         engine.game.update_time_left(engine.game.player_state.search_time)
         
+    game_info.update(engine.postStatus())
     return HttpResponse(json.dumps(game_info))
