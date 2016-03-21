@@ -57,10 +57,15 @@ def play(request):
     context_dict = {"play":"PLLAAYYYAAAAA"}
     return render(request, 'zombaez/play.html', context_dict)
 
+game_info={}
+current_house = None
+current_room = None
 @login_required
 # REQUIRED PARAMETERS: event_type
 def game_event(request):
-    game_info={}
+    global current_house
+    global current_room
+    global game_info
     if request.method != "GET":
         return
 
@@ -81,7 +86,10 @@ def game_event(request):
         engine.game.update_time_left(engine.game.player_state.move_time)
                                                     
     elif eventType=="room_entered":
+        print "hi"
+        print current_house
         current_room = current_house.room_list[int(get["room_id"])]
+        print "hi"
         game_info["room_people"]=current_room.people
         game_info["room_food"]=current_room.food
         game_info["room_ammo"]=current_room.ammo
