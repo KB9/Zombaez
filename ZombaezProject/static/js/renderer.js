@@ -222,8 +222,6 @@ var hallLevel;
 var activeLevel;
 var dialog;
 
-var overlayAlpha;
-
 var menuMode = false;
 
 var player;
@@ -278,21 +276,25 @@ window.onload = function() {
 
         activeLevel = level;
 
-        dialog = new DialogMenu("title text", [
-            "Fight the zombie",
-            "Run from the zombie"
-        ],
-        [
-            function() {
-                //onFightZombie();
-            },
-            function() {
-                menuMode = false;
+        dialog = new DialogMenu(
+            "You have encountered a zombae holy shit wtf u gonna do",
+            [
+                "Fight the zombae",
+                "Run from the zombae"
+            ],
+            [
+                function() {
+                    //onFightZombie();
+                },
+                function() {
+                    menuMode = false;
 
-                // EW! PLS FIX!
-                renderScene();
-            },
-        ], 0, 0, canvas.width, canvas.height);
+                    // EW! PLS FIX!
+                    renderScene();
+                },
+            ],
+            0, 0, canvas.width, canvas.height
+        );
 
         updateCamera();
         renderScene();
@@ -303,6 +305,9 @@ window.onload = function() {
 
 // IDs of non-blocking tiles
 var nonBlockingTiles = [751,714,831,832,794,795,823,822,789,747,741,710,821,857,858,900,748,711,746,820,859,709];
+
+var playerLastStreetX;
+var playerLastStreetY;
 
 function isNonBlockingTile(level, x, y) {
     return nonBlockingTiles.indexOf(level.getTileIndex(0, x, y)) > -1;
@@ -466,12 +471,17 @@ function onEnterHouse(houseId) {
 
             activeLevel = hallLevel;
 
-            var doorsList = [];
+            // Add the exit door with a unique ID of -1
+            var doorsList = [[35, 31, -1]];
+
             for (var i = 0; i < roomCount; i++) {
                 doorsList.push([24, 19 + (i * 2), i]);
                 activeLevel.topTiles[24][19 + (i * 2)] = 986;
             }
             activeLevel.setDoorData(doorsList);
+
+            playerLastStreetX = player.x;
+            playerLastStreetY = player.y;
 
             player.setLevel(activeLevel, 31 * activeLevel.tileWidth, 36 * activeLevel.tileHeight);
             updateCamera();
@@ -484,19 +494,26 @@ function onEnterHouse(houseId) {
 }
 
 function onEnterRoom(roomId) {
-    $.ajax({
-        type: "GET",
-        url: "/zombaez/game_event/",
-        data: {
-            "event_type": "room_entered",
-            "room_id": roomId
-        },
-        success: function(data) {
-            $("#play-button").html(data);
-            showMenu();
-        },
-        error: function(data) {
-            alert("Failed to connect to engine!");
-        }
-    });
+    if (roomId > -1) {
+        $.ajax({
+            type: "GET",
+            url: "/zombaez/game_event/",
+            data: {
+                "event_type": "room_entered",
+                "room_id": roomId
+            },
+            success: function(data) {
+                $("#play-button").html(data);
+                showMenu();
+            },
+            error: function(data) {
+                alert("Failed to connect to engine!");
+            }
+        });
+    } else {
+        activeLevel = level;
+        player.setLevel(activeLevel, playerLastStreetX, playerLastStreetY);
+        updateCamera();
+        renderScene();
+    }
 }
