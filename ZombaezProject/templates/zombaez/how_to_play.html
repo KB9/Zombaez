@@ -9,11 +9,31 @@
 
 {% block head_block %}
 	<link rel="stylesheet" href="{% static "styles/how_to_play.css"%}" type="text/css" />
-	<script src="{% static "js/how_to_play.js" %}"></script>
+	<script src="{% static 'js/how_to_play.js' %}"></script>
 {% endblock %}
 
 {% block body_block %}
 
-		<p>{{how_to_play}}</p>
+		<div id="slideshow">
+			<div id="left_third" class="third">
+				<img id="left" src="{% static 'images/left.png' %}" onclick="prev()"/>
+			</div>
+			<div class="wrapper third">
+				<img id="1" class="slideshow show"src="{% static 'images/1.png' %}" alt="1" />
+				<img id="2" class="slideshow"src="{% static 'images/2.png' %}" alt="2" />
+				<img id="3" class="slideshow"src="{% static 'images/3.png' %}" alt="3" />
+				<img id="4" class="slideshow"src="{% static 'images/4.png' %}" alt="4" />
+			</div>
+			<div id="right_third" class="third">
+				<img id="right" src="{% static 'images/right.png' %}" onclick="next()"/>
+			</div>
+		</div>
+		
+		<div id="desc">
+			<p id="p1" class="show">1</p>
+			<p id="p2">2</p>
+			<p id="p3">3</p>
+			<p id="p4">4</p>
+		</div>
 
 {% endblock %}
