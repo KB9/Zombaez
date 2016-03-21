@@ -284,13 +284,10 @@ window.onload = function() {
             ],
             [
                 function() {
-                    //onFightZombie();
+                    onFightZombie();
                 },
                 function() {
-                    menuMode = false;
-
-                    // EW! PLS FIX!
-                    renderScene();
+                    onRunFromZombie();
                 },
             ],
             0, 0, canvas.width, canvas.height
@@ -519,4 +516,41 @@ function onEnterRoom(roomId) {
         updateCamera();
         renderScene();
     }
+}
+
+function onFightZombie() {
+    alert("Fought zombie!");
+    $.ajax({
+        type: "GET",
+        url: "/zombaez/game_event/",
+        data: {
+            "event_type": "zombie_fight"
+        },
+        success: function(data) {
+            $("#play-button").html(data);
+        },
+        error: function(data) {
+            alert("Internal server error: 500");
+        }
+    });
+}
+
+function onRunFromZombie() {
+    alert("Ran from zombie!");
+    $.ajax({
+        type: "GET",
+        url: "/zombaez/game_event/",
+        data: {
+            "event_type": "zombie_run"
+        },
+        success: function(data) {
+            $("#play-button").html(data);
+
+            menuMode = false;
+            renderScene();
+        },
+        error: function(data) {
+            alert("Internal server error: 500");
+        }
+    });
 }
