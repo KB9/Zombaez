@@ -18,7 +18,7 @@
 }
 
 #left:hover{
-	content: url("../images/left_hover.png")
+	content: url("../images/left_hover.png");
 }
 
 #right:hover{

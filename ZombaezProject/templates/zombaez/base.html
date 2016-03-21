@@ -23,6 +23,7 @@
 				<li class="right drop_down"><a>{{user.username}}</a>
 					<div id="drop_down_content">
 						<a href="{% url 'user_profile' %}">User Profile</a>
+						<a href="{% url 'auth_password_change' %}">Change Password</a>
 						<a href="{% url 'auth_logout' %}?next=/zombaez/">Logout</a>
 					</div>
 				</li>

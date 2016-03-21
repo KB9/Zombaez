@@ -40,7 +40,7 @@
 			
 			{% for player in total_games_played %}
 			<tr>
-				<td>{{player.username}}</td>
+				<td><a href="/zombaez/view_profile/{{player.username}}">{{player.username}}</a></td>
 				<td>{{player.total_games_played}}</td>
 				<td>{{player.total_days_survived}}</td>
 				<td>{{player.zombies_killed}}</td>
@@ -66,7 +66,7 @@
 			
 			{% for player in total_days_survived %}
 			<tr>
-				<td>{{player.username}}</td>
+				<td><a href="/zombaez/view_profile/{{player.username}}">{{player.username}}</a></td>
 				<td>{{player.total_games_played}}</td>
 				<td>{{player.total_days_survived}}</td>
 				<td>{{player.zombies_killed}}</td>
@@ -92,7 +92,7 @@
 			
 			{% for player in zombies_killed %}
 			<tr>
-				<td>{{player.username}}</td>
+				<td><a href="/zombaez/view_profile/{{player.username}}">{{player.username}}</a></td>
 				<td>{{player.total_games_played}}</td>
 				<td>{{player.total_days_survived}}</td>
 				<td>{{player.zombies_killed}}</td>
@@ -118,7 +118,7 @@
 			
 			{% for player in largest_party_size %}
 			<tr>
-				<td>{{player.username}}</td>
+				<td><a href="/zombaez/view_profile/{{player.username}}">{{player.username}}</a></td>
 				<td>{{player.total_games_played}}</td>
 				<td>{{player.total_days_survived}}</td>
 				<td>{{player.zombies_killed}}</td>
@@ -144,7 +144,7 @@
 			
 			{% for player in total_ammo_collected %}
 			<tr>
-				<td>{{player.username}}</td>
+				<td><a href="/zombaez/view_profile/{{player.username}}">{{player.username}}</a></td>
 				<td>{{player.total_games_played}}</td>
 				<td>{{player.total_days_survived}}</td>
 				<td>{{player.zombies_killed}}</td>
@@ -170,7 +170,7 @@
 			
 			{% for player in total_food_collected %}
 			<tr>
-				<td>{{player.username}}</td>
+				<td><a href="/zombaez/view_profile/{{player.username}}">{{player.username}}</a></td>
 				<td>{{player.total_games_played}}</td>
 				<td>{{player.total_days_survived}}</td>
 				<td>{{player.zombies_killed}}</td>

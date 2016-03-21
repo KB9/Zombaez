@@ -14,6 +14,18 @@ tr:nth-child(even) {
 tr:nth-child(odd) {
     background-color: #CECECE;
 }
+td a {
+	padding: 2px;
+	color: #701A1A;
+}
+
+
+td a:hover{
+	
+	color: #CECECE;
+	background-color: #701A1A;
+	border-radius:5px;
+}
 
 
 .tabs {
