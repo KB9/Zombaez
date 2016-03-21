@@ -62,18 +62,22 @@ def play(request):
 def game_event(request): 
     if request.method != "GET":
         return  
-    
-    get = request.GET;
-    eventType = get["event_type"];
-	game_info = {}
-    
+
+    get = request.GET
+    eventType = get["event_type"]
+    game_info = {}
+
     if eventType == "unpickle_on_load":
         engine.unpickleGame(request)
     elif eventType == "pickle_on_close":
         engine.pickleGame(request)
-	
-	while len(get[]>0):
-		if eventType=="house_entered":
-			game_info["num_of_rooms"] = engine.game.street.house_list[get["house_id"]].num_of_rooms
+    elif eventType=="house_entered":
+        print engine
+        print engine.game
+        print engine.game.street_factory
+        print engine.game.street_factory.street
+        print engine.game.street_factory.street.house_list
+        game_info["num_of_rooms"] = engine.game.street_factory.street.house_list[get["house_id"]].num_of_rooms
+        print game_info["num_of_rooms"]
 
-    return HttpResponse(eventType, json.dumps(game_info))
+    return HttpResponse(json.dumps(game_info))

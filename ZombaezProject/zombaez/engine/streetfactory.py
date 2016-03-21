@@ -4,6 +4,8 @@ from house import House
 import math
 import random
 
+street = None
+
 class Street(object):
 
     def __init__(self, name, house_list):
@@ -37,11 +39,13 @@ class Street(object):
 
 
 class StreetFactory(object):
+    global street
 
     def __init__(self):
         self.faker = FakeFactory.create()
 
     def make_street(self, player_state):
+        global street
 
         # how many houses in street?
 

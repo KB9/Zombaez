@@ -376,6 +376,10 @@ function loadImages(sources, callback) {
     }
 }
 
+function fromJSON(jsonData) {
+    return JSON.parse(jsonData);
+}
+
 // =============== AJAX CALLS ===============
 
 function onEnterHouse(houseId) {
@@ -387,12 +391,14 @@ function onEnterHouse(houseId) {
             "house_id": houseId
         },
         success: function(data) {
-            $("#play-button").html(data);
+            //$("#play-button").html(data);
+            var roomCount = fromJSON(data)["num_of_rooms"];
+            alert(roomCount);
 
             activeLevel = hallLevel;
 
             var doorsList = [];
-            for (var i = 0; i < 11; i++) {
+            for (var i = 0; i < roomCount; i++) {
                 doorsList.push([24, 19 + (i * 2), i]);
                 activeLevel.topTiles[24][19 + (i * 2)] = 986;
             }

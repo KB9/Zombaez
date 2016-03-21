@@ -13,6 +13,7 @@ game = None
 def initNewGame():
     global game
     game = Game()
+    game.start_new_day()
     return game
 
 def pickleGame(request):
@@ -39,9 +40,10 @@ def main():
     # while the day or game is not over,
     # display the current state of the game,
     # then check what the player wants to do
-
-    g = Game()
-	g.start_new_day()
+    
+    print "fack"
+    #g = Game()
+    #g.start_new_day()
 """
 		#kick off the day
         g.start_new_day()
