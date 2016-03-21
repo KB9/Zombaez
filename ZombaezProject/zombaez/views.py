@@ -79,22 +79,27 @@ def game_event(request):
 
     if eventType == "pickle_on_close":
         engine.pickleGame(request)
-        
+    elif eventType=="house_exited":
+        engine.game.game_state = "STREET"
     elif eventType=="house_entered":
+        engine.game.game_state = "HOUSE"
         current_house=engine.game.street.house_list[int(get["house_id"])]
         game_info["num_of_rooms"] = current_house.num_of_rooms
-        engine.game.update_time_left(engine.game.player_state.move_time)
-                                                    
+        engine.game.update_time_left(engine.game.player_state.move_time)                                                 
     elif eventType=="room_entered":
-        print "hi"
-        print current_house
+        engine.game.game_state = "ZOMBIE"
         current_room = current_house.room_list[int(get["room_id"])]
-        print "hi"
         game_info["room_people"]=current_room.people
         game_info["room_food"]=current_room.food
         game_info["room_ammo"]=current_room.ammo
         game_info["room_zombies"]=current_room.zombies
         engine.game.update_time_left(engine.game.player_state.search_time)
-        
+    elif eventType =="zombie_run":
+        engine.game.game_state = "HOUSE"
+        engine.game.take_turn("RUN")
+    elif eventType == "zombie_fight":
+        engine.game.take_turn("FIGHT")
+
+            
     game_info.update(engine.postStatus())
     return HttpResponse(json.dumps(game_info))

@@ -209,7 +209,7 @@ class Game(object):
 
 
     def __action_fight(self, value=None):
-
+        print "fight!!!!"
         self.update_time_left(FIGHT_TIME)
 
         current_room = self.street.get_current_house().get_current_room()
