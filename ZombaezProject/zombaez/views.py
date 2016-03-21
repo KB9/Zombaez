@@ -71,35 +71,60 @@ def game_event(request):
 
     get = request.GET
     eventType = get["event_type"]
-
+    
     if eventType == "unpickle_on_load":
         engine.unpickleGame(request)
 
-   
+    if engine.game.is_game_over():
+        u = User.objects.get(user=request.user.user)
+        u.total_ammo_collected += engine.game.player_state.ammo
+        u.total_food_collected += engine.game.player_state.food
+        u.total_days_survived += engine.game.player_state.days
+        u.total_zombies_killed += engine.game.player_state.kills
+        u.save()
+        engine.initNewGame()
+        
+    if engine.game.player_state.party < 1:
+        engine.initNewGame()
 
     if eventType == "pickle_on_close":
         engine.pickleGame(request)
     elif eventType=="house_exited":
         engine.game.game_state = "STREET"
     elif eventType=="house_entered":
-        engine.game.game_state = "HOUSE"
+        engine.game.take_turn("ENTER")
+        
+        
+        engine.game.street.current_house = int(get["house_id"])
         current_house=engine.game.street.house_list[int(get["house_id"])]
         game_info["num_of_rooms"] = current_house.num_of_rooms
         engine.game.update_time_left(engine.game.player_state.move_time)                                                 
     elif eventType=="room_entered":
-        engine.game.game_state = "ZOMBIE"
+        
+        engine.game.game_state = "HOUSE"
+        current_house.current_room = int(get["room_id"])
         current_room = current_house.room_list[int(get["room_id"])]
         game_info["room_people"]=current_room.people
         game_info["room_food"]=current_room.food
         game_info["room_ammo"]=current_room.ammo
         game_info["room_zombies"]=current_room.zombies
+        engine.game.take_turn("SEARCH", int(get["room_id"]))
+
         engine.game.update_time_left(engine.game.player_state.search_time)
-    elif eventType =="zombie_run":
+    elif eventType == "room_exited":
         engine.game.game_state = "HOUSE"
+    elif eventType =="zombie_run":
+        engine.game.game_state = "ZOMBIE"
         engine.game.take_turn("RUN")
     elif eventType == "zombie_fight":
+        engine.game.game_state = "ZOMBIE"
+        game_info["start_zombies"]=current_room.zombies
+        game_info["room_people"]=current_room.people
+        game_info["room_food"]=current_room.food
+        game_info["room_ammo"]=current_room.ammo
         engine.game.take_turn("FIGHT")
+        
+        game_info["room_zombies"]=current_room.zombies
 
-            
     game_info.update(engine.postStatus())
     return HttpResponse(json.dumps(game_info))

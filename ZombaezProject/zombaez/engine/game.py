@@ -3,7 +3,7 @@ import math
 import random
 from streetfactory import StreetFactory
 from copy import deepcopy
-
+from zombaez.models import User
 MAX_MOVE_TIME = 10
 MAX_SEARCH_TIME = 5
 WAIT_TIME = 20
@@ -73,13 +73,15 @@ class Game(object):
 
     def update_time_left(self, time_spent):
         self._time_left -= time_spent
-
+        if self._time_left < 0:
+            self.end_day()
+            self.start_new_day()
+            
     def turn_options(self):
         return ACTIONS[self.game_state]
 
 
     def take_turn(self, action, value=None):
-
         def diff_state(state_a, state_b):
             state = PlayerState()
             state.party = state_a.party - state_b.party
@@ -102,6 +104,7 @@ class Game(object):
         # save current player state
         player_last_state = deepcopy(self.player_state)
 
+        
         if action in self.turn_options():
             turn_actions[action](value)
         else:
@@ -135,6 +138,7 @@ class Game(object):
             self.player_state.food = 0
         else:
             self.player_state.food = food - people
+
 
 
 
@@ -209,9 +213,7 @@ class Game(object):
 
 
     def __action_fight(self, value=None):
-        print "fight!!!!"
         self.update_time_left(FIGHT_TIME)
-
         current_room = self.street.get_current_house().get_current_room()
         zombies = current_room.zombies
         ammo = current_room.ammo
@@ -246,7 +248,6 @@ class Game(object):
 
 
     def __player_clears_room(self, current_room):
-
         self.player_state.food += current_room.food
         self.player_state.party += current_room.people
         self.player_state.ammo += current_room.ammo

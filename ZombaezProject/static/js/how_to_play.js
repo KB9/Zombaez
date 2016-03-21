@@ -2,7 +2,7 @@ window.onload = function() {
 				var c = document.getElementById("nav2");
 				c.className += " active";
 }
-var number_of_images = 4;
+var number_of_images = 3;
 var previous_index;
 var index = 1;
 function prev(){

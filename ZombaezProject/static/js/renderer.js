@@ -573,7 +573,7 @@ function onEnterRoom(roomId) {
 
                 if (data["room_zombies"] > 0) {
                     dialog = new DialogMenu(
-                        "You have encountered a zombae holy shit wtf u gonna do",
+                        "You have encountered a zombae. What are you going to do?",
                         [
                             "Fight the zombae",
                             "Run from the zombae"
@@ -632,6 +632,8 @@ function onExitRoom() {
         },
         success: function(data) {
             $("#play-button").html(data);
+			data = JSON.parse(data);
+			updatePlayerStats(data["player_party"], data["player_ammo"], data["time_left"], data["player_day"], data["player_food"], data["player_kills"]);
             renderScene();
         },
         error: function(data) {
@@ -650,7 +652,54 @@ function onFightZombie() {
         },
         success: function(data) {
             $("#play-button").html(data);
-            // TODO: I don't know how to deal with multiple zombies :(
+			data = JSON.parse(data);
+			updatePlayerStats(data["player_party"], data["player_ammo"], data["time_left"], data["player_day"], data["player_food"], data["player_kills"]);
+
+                if (data["room_zombies"] == 0) {
+					dialog = new DialogMenu(
+                        "You have found:",
+                        [
+                            "Food: " + data["room_food"],
+                            "People: " + data["room_people"],
+                            "Ammo: "+ data["room_ammo"],
+							"Kills: " + data["start_zombies"],
+                            "",
+                            "OK"
+                        ],
+                        [
+                            null,
+                            null,
+                            null,
+                            null,
+							null,
+                            function() {
+                                menuMode = false;
+                                onExitRoom();
+                            }
+                        ],
+                        0, 0, canvas.width, canvas.height
+                    );
+                    dialog.render(context);
+
+                } else {
+                    dialog = new DialogMenu(
+                        "You have encountered a zombae. What are you going to do?",
+                        [
+                            "Fight the zombae",
+                            "Run from the zombae"
+                        ],
+                        [
+                            function() {
+                                onFightZombie();
+                            },
+                            function() {
+                                onRunFromZombie();
+                            },
+                        ],
+                        0, 0, canvas.width, canvas.height
+                    );
+                    dialog.render(context);
+                }
         },
         error: function(data) {
             alert("Internal server error: 500");
