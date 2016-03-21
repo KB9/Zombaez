@@ -209,9 +209,6 @@ window.onbeforeunload = function(){
         },
         success: function(data) {
             $("#play-button").html(data);
-        },
-        error: function(data) {
-            alert("you failed quit");
         }
     });
 }
@@ -229,9 +226,6 @@ window.onload = function() {
         },
         success: function(data) {
             $("#play-button").html(data);
-        },
-        error: function(data) {
-            alert("You failed load");
         }
     });
 //Canvas/Game code
