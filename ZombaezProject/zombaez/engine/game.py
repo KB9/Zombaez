@@ -22,6 +22,11 @@ class PlayerState(object):
         self.food = 3
         self.kills = 0
         self.days = 0
+        self.total_kills = 0
+        self.total_ammo = 2
+        self.total_food = 3
+        self.total_days = 0
+        self.largest_party = 1
 
     @property
     def move_time(self):
@@ -251,6 +256,10 @@ class Game(object):
         self.player_state.food += current_room.food
         self.player_state.party += current_room.people
         self.player_state.ammo += current_room.ammo
+        self.update_state.total_ammo += current_room.ammo
+        self.update_state.total_food += current_room.food
+        if self.update_state.party > self.update_state.largest_party:
+            self.update_state.largest_party = self.update_state.party
         current_room.cleared()
         self.update_time_left(self.player_state.search_time)
 
@@ -269,6 +278,7 @@ class Game(object):
             kills = current_room.zombies
             current_room.zombies = zombies - kills
             self.player_state.kills += kills
+            self.update_state.total_kills += kills
 
     def __player_attacks_with_ammo(self, current_room, p_win=1.0):
 
@@ -278,4 +288,5 @@ class Game(object):
         current_room.zombies = zombies - kills
         self.player_state.ammo -= kills
         self.player_state.kills += kills
+        self.update_state.total_kills += kills
 

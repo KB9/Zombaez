@@ -530,9 +530,6 @@ function onEnterHouse(houseId) {
             player.setLevel(activeLevel, 31 * activeLevel.tileWidth, 36 * activeLevel.tileHeight);
             updateCamera();
             renderScene();
-        },
-        error: function(data) {
-            alert("Failed to connect to engine!");
         }
     });
 }
@@ -551,9 +548,6 @@ function onExitHouse() {
             player.setLevel(activeLevel, playerLastStreetX, playerLastStreetY);
             updateCamera();
             renderScene();
-        },
-        error: function(data) {
-            alert("Internal server error: 500");
         }
     });
 }
@@ -613,9 +607,6 @@ function onEnterRoom(roomId) {
                     );
                     dialog.render(context);
                 }
-            },
-            error: function(data) {
-                alert("Failed to connect to engine!");
             }
         });
     } else {
@@ -635,9 +626,6 @@ function onExitRoom() {
 			data = JSON.parse(data);
 			updatePlayerStats(data["player_party"], data["player_ammo"], data["time_left"], data["player_day"], data["player_food"], data["player_kills"]);
             renderScene();
-        },
-        error: function(data) {
-            alert("Internal server error: 500");
         }
     });
 }
@@ -700,9 +688,6 @@ function onFightZombie() {
                     );
                     dialog.render(context);
                 }
-        },
-        error: function(data) {
-            alert("Internal server error: 500");
         }
     });
 }
@@ -724,9 +709,6 @@ function onRunFromZombie() {
             player.setLevel(activeLevel, playerLastStreetX, playerLastStreetY);
             updateCamera();
             renderScene();
-        },
-        error: function(data) {
-            alert("Internal server error: 500");
         }
     });
 }

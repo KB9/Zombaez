@@ -3,6 +3,10 @@ img{
 	height:31.25%;
 	max-width:500px;
 	image-rendering:pixelated;
+	border-style:solid;
+	border-radius: 25px;
+	border-color: #701A1A;
+	box-shadow: 0px 0px 15px #701A1A;
 }
 
 #about{

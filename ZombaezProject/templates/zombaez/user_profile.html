@@ -49,7 +49,7 @@
 		<h3>Badges</h3>
 		{% if badges %}
 			{% for badge in badges %}
-				<img src="{% static "" %}images/badges/{{badge.image}}" alt="{{badge.name}}" title="{{badge.name}} {{badge.level}} - {{badge.description}}"/>
+				<img src="{{badge.image}}" alt="{{badge.name}}" title="{{badge.name}} {{badge.level}} - {{badge.description}}"/>
 			{% endfor %}
 		{% else %}
 			{% if user.user = player %}

@@ -77,11 +77,110 @@ def game_event(request):
 
     if engine.game.is_game_over():
         u = User.objects.get(user=request.user.user)
-        u.total_ammo_collected += engine.game.player_state.ammo
-        u.total_food_collected += engine.game.player_state.food
-        u.total_days_survived += engine.game.player_state.days
-        u.total_zombies_killed += engine.game.player_state.kills
+        u.total_games_played += 1
+        u.total_ammo_collected = u.total_ammo_collected + engine.game.update_state.total_ammo
+        u.total_food_collected = u.total_food_collected + engine.game.update_state.total_food
+        u.total_days_survived = u.total_days_survived + engine.game.update_state.total_days
+        u.zombies_killed = u.zombies_killed + engine.game.update_state.total_kills
+        if engine.game.update_state.largest_party > u.largest_party_size:
+            u.largest_party_size = engine.game.update_state.largest_party
         u.save()
+        if u.zombies_killed > 10:
+            k1 = Badge(user=request.user.user)
+            k1.description = "Earned for killing 10 ZombaeZ"
+            k1.level = 1
+            k1.name = "Killer"
+            k1.image = "/static/images/badges/k1.png"
+            k1.requirements = "10 Zombae kills"
+            k1.save()
+        if u.zombies_killed > 20:
+            k2 = Badge(user=request.user.user)
+            k2.description = "Earned for killing 20 ZombaeZ"
+            k2.level = 2
+            k2.name = "Killer"
+            k2.image = "/static/images/badges/k2.png"
+            k2.requirements = "20 Zombae kills"
+            k2.save()
+        if u.zombies_killed > 50:
+            k3 = Badge(user=request.user.user)
+            k3.description = "Earned for killing 50 ZombaeZ"
+            k3.level = 3
+            k3.name = "Killer"
+            k3.image = "/static/images/badges/k3.png"
+            k3.requirements = "50 Zombae kills"
+            k3.save()
+        if u.total_days_survived > 5:
+            s1 = Badge(user=request.user.user)
+            s1.description = "Earned for surviving for 5 days"
+            s1.level = 1
+            s1.name = "Survivor"
+            s1.image = "/static/images/badges/s1.png"
+            s1.requirements = "5 days survived"
+            s1.save()
+        if u.total_days_survived > 10:
+            s2 = Badge(user=request.user.user)
+            s2.description = "Earned for surviving for 10 days"
+            s2.level = 2
+            s2.name = "Survivor"
+            s2.image = "/static/images/badges/s2.png"
+            s2.requirements = "10 days survived"
+            s2.save()
+        if u.total_days_survived > 20:
+            s3 = Badge(user=request.user.user)
+            s3.description = "Earned for surviving for 20 days"
+            s3.level = 3
+            s3.name = "Survivor"
+            s3.image = "/static/images/badges/s3.png"
+            s3.requirements = "20 days survived"
+            s3.save()
+        if u.total_games_played > 5:
+            sta1 = Badge(user=request.user.user)
+            sta1.description = "Earned for playing 5 games"
+            sta1.level = 1
+            sta1.name = "Stamina"
+            sta1.image = "/static/images/badges/sta1.png"
+            sta1.requirements = "5 games played"
+            sta1.save()
+        if u.total_games_played > 10:
+            sta2 = Badge(user=request.user.user)
+            sta2.description = "Earned for playing 10 games"
+            sta2.level = 2
+            sta2.name = "Stamina"
+            sta2.image = "/static/images/badges/sta2.png"
+            sta2.requirements = "10 games played"
+            sta2.save()
+        if u.total_games_played > 20:
+            sta3 = Badge(user=request.user.user)
+            sta3.description = "Earned for playing 20 games"
+            sta3.level = 3
+            sta3.name = "Stamina"
+            sta3.image = "/static/images/badges/sta3.png"
+            sta3.requirements = "20 games played"
+            sta3.save()
+        if u.largest_party_size > 10:
+            p1 = Badge(user=request.user.user)
+            p1.description = "Earned for having a party of at least 10 players"
+            p1.level = 1
+            p1.name = "Party"
+            p1.image = "/static/images/badges/p1.png"
+            p1.requirements = "10 players in a party"
+            p1.save()
+        if u.largest_party_size > 20:
+            p2 = Badge(user=request.user.user)
+            p2.description = "Earned for having a party of at least 20 players"
+            p2.level = 2
+            p2.name = "Party"
+            p2.image = "/static/images/badges/p2.png"
+            p2.requirements = "20 players in a party"
+            p2.save()
+        if u.largest_party_size > 40:
+            p3 = Badge(user=request.user.user)
+            p3.description = "Earned for having a party of at least 40 players"
+            p3.level = 3
+            p3.name = "Party"
+            p3.image = "/static/images/badges/p3.png"
+            p3.requirements = "40 players in a party"
+            p3.save()
         engine.initNewGame()
         
     if engine.game.player_state.party < 1:

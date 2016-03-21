@@ -7,33 +7,49 @@ django.setup()
 from zombaez.models import User, Game, Badge
 
 def populate():
-    kavan_user = add_user(
-            username='kavan',
-            zombies_killed=1337,
-            total_games_played=1337,
-            total_ammo_collected=1337,
-            largest_party_size=1337,
-            total_food_collected=1337,
-            total_days_survived=1337,
-            avatar='kavans_avatar.png'
+    jill_user = add_user(
+            username='jill',
+            zombies_killed=57,
+            total_games_played=15,
+            total_ammo_collected=45,
+            largest_party_size=11,
+            total_food_collected=54,
+            total_days_survived=60,
+            avatar='avatar.png'
     )
 
     add_badge(
-            user=kavan_user,
-            description='The most dank badge there is.',
+            user=jill_user,
+            description='Earned for killing 50 ZombaeZ.',
+            level=3,
+            name='Killer',
+            image='k3.png',
+            requirements='50 Zombae kills'
+    )
+
+    add_badge(
+            user=jill_user,
+            description='Earned for killing 20 ZombaeZ.',
+            level=2,
+            name='Killer',
+            image='k2.png',
+            requirements='20 Zombae kills'
+    )
+
+    add_badge(
+            user=jill_user,
+            description='Earned for killing 10 ZombaeZ.',
             level=1,
-            name='The dank badge',
-            image='dank_af.png',
-            requirements='Do not become dankrupt!'
+            name='Killer',
+            image='k1.png',
+            requirements='10 Zombae kills'
     )
 
     add_game(
-            user=kavan_user,
-            time_of_day=0,
-            party_size=0,
-            ammo_count=0,
-            food_count=0,
-            days_survived=0
+            user=jill_user,
+            game_state=""
+            update_state=""
+            player_state=""
     )
 
     # Print out what was added
@@ -69,14 +85,11 @@ def add_badge(user, description='', level=0, name='', image='', requirements='')
     b.save()
     return b
 
-def add_game(user, time_of_day=0, party_size=0, ammo_count=0, food_count=0, days_survived=0):
+def add_game(user, game_state="",update_state="",player_state=""):
     g = Game.objects.get_or_create(user=user)[0]
-
-    g.time_of_day = time_of_day
-    g.party_size = party_size
-    g.ammo_count = ammo_count
-    g.food_count = food_count
-    g.days_survived = days_survived
+    g.game_state = game_state
+    g.player_state = player_state
+    g.update_state = update_state
 
     g.save()
     return g
