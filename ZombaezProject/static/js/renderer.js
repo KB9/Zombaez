@@ -237,6 +237,7 @@ window.onbeforeunload = function(){
         },
         success: function(data) {
             $("#play-button").html(data);
+			
         },
 		error: function (xmlHttpRequest, data) {
         if(xmlHttpRequest.readyState == 0 || xmlHttpRequest.status == 0) 
@@ -259,10 +260,11 @@ window.onload = function() {
             "event_type": "unpickle_on_load"
         },
         success: function(data) {
-            $("#play-button").html(data);
+			console.log("start");
             data = JSON.parse(data);
             updatePlayerStats(data["player_party"], data["player_ammo"], data["time_left"], data["player_day"], data["player_food"], data["player_kills"]);
-        }
+			console.log("asd");
+		}
     });
 //Canvas/Game code
     canvas = document.getElementById("game_canvas");
@@ -543,10 +545,12 @@ function onExitHouse() {
         },
         success: function(data) {
             $("#play-button").html(data);
-
+			data = JSON.parse(data);
+			updatePlayerStats(data["player_party"], data["player_ammo"], data["time_left"], data["player_day"], data["player_food"], data["player_kills"]);
             activeLevel = level;
             player.setLevel(activeLevel, playerLastStreetX, playerLastStreetY);
             updateCamera();
+			
             renderScene();
         }
     });
@@ -564,6 +568,7 @@ function onEnterRoom(roomId) {
             success: function(data) {
                 $("#play-button").html(data);
                 data = JSON.parse(data);
+				updatePlayerStats(data["player_party"], data["player_ammo"], data["time_left"], data["player_day"], data["player_food"], data["player_kills"]);
 
                 if (data["room_zombies"] > 0) {
                     dialog = new DialogMenu(
@@ -702,7 +707,8 @@ function onRunFromZombie() {
         },
         success: function(data) {
             $("#play-button").html(data);
-
+			data = JSON.parse(data);
+			updatePlayerStats(data["player_party"], data["player_ammo"], data["time_left"], data["player_day"], data["player_food"], data["player_kills"]);
             menuMode = false;
             
             activeLevel = level;

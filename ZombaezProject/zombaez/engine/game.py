@@ -9,7 +9,7 @@ MAX_SEARCH_TIME = 5
 WAIT_TIME = 20
 FIGHT_TIME = 5
 RUN_TIME = 2
-ENTER_TIME = 1
+ENTER_TIME = 10
 EXIT_TIME = 1
 NONE_TIME = 0
 LENGTH_OF_DAY = 100
@@ -63,10 +63,9 @@ class Game(object):
         self.update_state.food = 0
         self.update_state.ammo = 0
         self.update_state.kills = 0
-        self.update_state.party = 0
+        self.update_state.party = 1
 
         self.player_state = PlayerState()
-
         self._time_left = LENGTH_OF_DAY
         self.street_factory = StreetFactory()
         self.game_state = None
@@ -125,7 +124,7 @@ class Game(object):
         self.player_state.days += 1
         self._time_left = LENGTH_OF_DAY
         self.street = self.street_factory.make_street(self.player_state)
-        self.game_state = 'STREET'
+        #self.game_state = 'STREET'
 
 
 
@@ -148,7 +147,6 @@ class Game(object):
 
 
     def is_day_over(self):
-
         if self.time_left <= 0:
             return True
         else:
@@ -159,8 +157,10 @@ class Game(object):
         :return: True if the game is over, i.e. if the party_size is zero
         """
         if self.player_state.party <= 0:
+
             return True
         else:
+
             return False
 
 

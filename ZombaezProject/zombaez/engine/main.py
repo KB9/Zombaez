@@ -16,11 +16,13 @@ def initNewGame():
     game.start_new_day()
 
 def pickleGame(request):
+    
     data = userGame.objects.get(user=request.user.user)
     data.player_state = pickle.dumps(game.player_state)
     data.update_state = pickle.dumps(game.update_state)
     data.game_state = pickle.dumps(game.game_state)
     data.save()
+    
 
 def postStatus():
     player_status={}
@@ -32,12 +34,12 @@ def postStatus():
     player_status["player_day"]=game.player_state.days
     return player_status
 
+
 def unpickleGame(request):
-    initNewGame()
-    user = userGame.objects.get(user=request.user.user)
-    game.player_state = pickle.loads(user.player_state)
-    game.update_state = pickle.loads(user.update_state)
-    game.game_state = pickle.loads(user.game_state)    
+    gameUser = userGame.objects.get(user=request.user.user)
+    game.player_state = pickle.loads(gameUser.player_state)
+    game.update_state = pickle.loads(gameUser.update_state)
+    game.game_state = pickle.loads(gameUser.game_state)
 
 def main():
 
