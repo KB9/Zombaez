@@ -3,7 +3,7 @@ from django.contrib.auth.models import User as DjangoUser
 
 class User(models.Model):
     username = models.CharField(max_length=128, unique=True)
-    user = models.OneToOneField(DjangoUser, on_delete=models.CASCADE, default=1)
+    user = models.OneToOneField(DjangoUser, on_delete=models.CASCADE)
 
     
     zombies_killed = models.IntegerField(default=0)
@@ -32,9 +32,9 @@ class Badge(models.Model):
 class Game(models.Model):
     user = models.OneToOneField(User)
 
-    player_state = models.CharField(max_length=8192, default="ccopy_reg _reconstructor p0 (czombaez.engine.game PlayerState p1 c__builtin__ object p2 Ntp3 Rp4 (dp5 S'kills' p6 I0 sS'food' p7 I3 sS'total_food' p8 I3 sS'days' p9 I1 sS'total_ammo' p10 I2 sS'total_days' p11 I0 sS'total_kills' p12 I0 sS'largest_party' p13 I1 sS'party' p14 I1 sS'ammo' p15 I2 sb.", blank = False)
-    game_state = models.CharField(max_length=8192, default="STREET", blank = False)
-    update_state = models.CharField(max_length=8192, default="	ccopy_reg _reconstructor p0 (czombaez.engine.game PlayerState p1 c__builtin__ object p2 Ntp3 Rp4 (dp5 S'kills' p6 I0 sS'food' p7 I0 sS'total_food' p8 I3 sS'days' p9 I0 sS'total_ammo' p10 I2 sS'total_days' p11 I0 sS'total_kills' p12 I0 sS'largest_party' p13 I1 sS'party' p14 I1 sS'ammo' p15 I0 sb.", blank = False)
+    player_state = models.CharField(max_length=8192, default="ccopy_reg _reconstructor p0 (czombaez.engine.game PlayerState p1 c__builtin__ object p2 Ntp3 Rp4 (dp5 S'kills' p6 I0 sS'food' p7 I3 sS'total_ammo' p8 I0 sS'days' p9 I1 sS'total_days' p10 I0 sS'total_food' p11 I0 sS'largest_party' p12 I1 sS'party' p13 I1 sS'ammo' p14 I2 sb.", blank = False)
+    game_state = models.CharField(max_length=8192, default="S'STREET' p0 .", blank = False)
+    update_state = models.CharField(max_length=8192, default="ccopy_reg _reconstructor p0 (czombaez.engine.game PlayerState p1 c__builtin__ object p2 Ntp3 Rp4 (dp5 S'kills' p6 I0 sS'food' p7 I0 sS'total_ammo' p8 I0 sS'days' p9 I0 sS'total_days' p10 I0 sS'total_food' p11 I0 sS'largest_party' p12 I1 sS'party' p13 I1 sS'ammo' p14 I0 sb.", blank = False)
 
 
     def __unicode__(self):

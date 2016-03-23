@@ -199,7 +199,10 @@ DialogMenu.prototype.render = function(context) {
 
 DialogMenu.prototype.onOptionSelected = function(position) {
     var func = this.functionsList[position];
-    if (func != null) func();
+    if (func != null) {
+        this.cursorPos = 0;
+        func();
+    }
 }
 
 // =============== INITIALISATION AND GLOBALS ===============
@@ -260,10 +263,11 @@ window.onload = function() {
             "event_type": "unpickle_on_load"
         },
         success: function(data) {
-			console.log("start");
             data = JSON.parse(data);
             updatePlayerStats(data["player_party"], data["player_ammo"], data["time_left"], data["player_day"], data["player_food"], data["player_kills"]);
-			console.log("asd");
+			//console.log(data["player_party"])
+			
+			renderScene();
 		}
     });
 //Canvas/Game code
@@ -288,25 +292,6 @@ window.onload = function() {
         hallLevel.loadLevel("hallmap");
 
         activeLevel = level;
-
-        /*
-        dialog = new DialogMenu(
-            "You have encountered a zombae holy shit wtf u gonna do",
-            [
-                "Fight the zombae",
-                "Run from the zombae"
-            ],
-            [
-                function() {
-                    onFightZombie();
-                },
-                function() {
-                    onRunFromZombie();
-                },
-            ],
-            0, 0, canvas.width, canvas.height
-        );
-        */
 
         updateCamera();
         renderScene();
@@ -345,6 +330,37 @@ function renderHUD() {
     context.fillText("Day: " + playerDay, 0, 64, 150);
     context.fillText("Food: " + playerFood, 0, 80, 150);
     context.fillText("Kills: " + playerKills, 0, 96, 150);
+}
+
+function checkGameOver(partySize) {
+    if (partySize <= 0) {
+        dialog = new DialogMenu(
+            "game_over",
+            [
+                "You have died! Game over!"
+            ],
+            [
+                function() {
+                    onGameOver();
+					
+                },
+            ],
+            0, 0, canvas.width, canvas.height
+        );
+        dialog.render(context);
+        return true;
+    }
+    return false;
+}
+
+function startNewGame()
+{
+    menuMode = false;
+
+    activeLevel = level;
+    player.setLevel(activeLevel, 31 * activeLevel.tileWidth, 31 * activeLevel.tileHeight);
+    updateCamera();
+    renderScene();
 }
 
 function updatePlayerStats(party, ammo, time, day, food, kills) {
@@ -529,6 +545,8 @@ function onEnterHouse(houseId) {
 
             updatePlayerStats(data["player_party"], data["player_ammo"], data["time_left"], data["player_day"], data["player_food"], data["player_kills"]);
 
+            if(checkGameOver(data["player_party"])) return;
+
             player.setLevel(activeLevel, 31 * activeLevel.tileWidth, 36 * activeLevel.tileHeight);
             updateCamera();
             renderScene();
@@ -547,6 +565,9 @@ function onExitHouse() {
             $("#play-button").html(data);
 			data = JSON.parse(data);
 			updatePlayerStats(data["player_party"], data["player_ammo"], data["time_left"], data["player_day"], data["player_food"], data["player_kills"]);
+
+            if(checkGameOver(data["player_party"])) return;
+
             activeLevel = level;
             player.setLevel(activeLevel, playerLastStreetX, playerLastStreetY);
             updateCamera();
@@ -570,12 +591,19 @@ function onEnterRoom(roomId) {
                 data = JSON.parse(data);
 				updatePlayerStats(data["player_party"], data["player_ammo"], data["time_left"], data["player_day"], data["player_food"], data["player_kills"]);
 
+                if(checkGameOver(data["player_party"])) return;
+
                 if (data["room_zombies"] > 0) {
+                    var zombaeCount = data["room_zombies"];
+                    var pluralExt = (zombaeCount > 1 ? "z" : "");
+                    var title = "You have encountered " + zombaeCount + " zombae" + pluralExt;
+                    var fightOption = "Fight the " + zombaeCount + " zombae" + pluralExt;
+                    var runOption = "Run from the zombae" + pluralExt;
                     dialog = new DialogMenu(
-                        "You have encountered a zombae. What are you going to do?",
+                        title,
                         [
-                            "Fight the zombae",
-                            "Run from the zombae"
+                            fightOption,
+                            runOption
                         ],
                         [
                             function() {
@@ -630,13 +658,15 @@ function onExitRoom() {
             $("#play-button").html(data);
 			data = JSON.parse(data);
 			updatePlayerStats(data["player_party"], data["player_ammo"], data["time_left"], data["player_day"], data["player_food"], data["player_kills"]);
+
+            if(checkGameOver(data["player_party"])) return;
+
             renderScene();
         }
     });
 }
 
 function onFightZombie() {
-    alert("Fought zombie!");
     $.ajax({
         type: "GET",
         url: "/zombaez/game_event/",
@@ -648,57 +678,42 @@ function onFightZombie() {
 			data = JSON.parse(data);
 			updatePlayerStats(data["player_party"], data["player_ammo"], data["time_left"], data["player_day"], data["player_food"], data["player_kills"]);
 
-                if (data["room_zombies"] == 0) {
-					dialog = new DialogMenu(
-                        "You have found:",
-                        [
-                            "Food: " + data["room_food"],
-                            "People: " + data["room_people"],
-                            "Ammo: "+ data["room_ammo"],
-							"Kills: " + data["start_zombies"],
-                            "",
-                            "OK"
-                        ],
-                        [
-                            null,
-                            null,
-                            null,
-                            null,
-							null,
-                            function() {
-                                menuMode = false;
-                                onExitRoom();
-                            }
-                        ],
-                        0, 0, canvas.width, canvas.height
-                    );
-                    dialog.render(context);
+			
+            if (!checkGameOver(data["player_party"])) {
+				dialog = new DialogMenu(
+                    "You have found:",
+                    [
+                        "Food: " + data["room_food"],
+                        "People: " + data["room_people"],
+                        "Ammo: "+ data["room_ammo"],
+						"Kills: " + data["start_zombies"],
+                        "",
+                        "OK"
+                    ],
+                    [
+                        null,
+                        null,
+                        null,
+                        null,
+						null,
+                        function() {
+                            menuMode = false;
+                            onExitRoom();
+                        }
+                    ],
+                    0, 0, canvas.width, canvas.height
+                );
+                dialog.render(context);
 
-                } else {
-                    dialog = new DialogMenu(
-                        "You have encountered a zombae. What are you going to do?",
-                        [
-                            "Fight the zombae",
-                            "Run from the zombae"
-                        ],
-                        [
-                            function() {
-                                onFightZombie();
-                            },
-                            function() {
-                                onRunFromZombie();
-                            },
-                        ],
-                        0, 0, canvas.width, canvas.height
-                    );
-                    dialog.render(context);
-                }
+            } else {
+                onExitRoom();
+                dialog.render(context);
+            }
         }
     });
 }
 
 function onRunFromZombie() {
-    alert("Ran from zombie!");
     $.ajax({
         type: "GET",
         url: "/zombaez/game_event/",
@@ -710,11 +725,28 @@ function onRunFromZombie() {
 			data = JSON.parse(data);
 			updatePlayerStats(data["player_party"], data["player_ammo"], data["time_left"], data["player_day"], data["player_food"], data["player_kills"]);
             menuMode = false;
+
+            if(checkGameOver(data["player_party"])) return;
             
             activeLevel = level;
             player.setLevel(activeLevel, playerLastStreetX, playerLastStreetY);
             updateCamera();
             renderScene();
+        }
+    });
+}
+
+function onGameOver() {
+    $.ajax({
+        type: "GET",
+        url: "/zombaez/game_event/",
+        data: {
+            "event_type": "game_over"
+        },
+        success: function(data) {
+			data = JSON.parse(data);
+			updatePlayerStats(data["player_party"], data["player_ammo"], data["time_left"], data["player_day"], data["player_food"], data["player_kills"]);
+			startNewGame();
         }
     });
 }
