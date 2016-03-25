@@ -13,27 +13,28 @@
 	</head>
 
 	<body>
-			<ul id="nav_bar">
-				<li id="logoItem" ><img class="logo" src="{% static "images/zombaez.png" %}" alt="ZombaeZ logo"/>
-				<li><a id="nav1" href="{% url 'home' %}">Home</a></li>
-				<li><a id="nav2" href="{% url 'how_to_play' %}">How to Play</a></li>
-				<li><a id="nav3" href="{% url 'leaderboards' %}">Leaderboard</a></li>
-				{% if user.is_authenticated %}
-				<li><a id="nav4" href="{% url 'play' %}">Play ZombaeZ</a></li>
-				<li class="right drop_down"><a>{{user.username}}</a>
-					<div id="drop_down_content">
-						<a href="{% url 'user_profile' %}">User Profile</a>
-						<a href="{% url 'auth_password_change' %}">Change Password</a>
+		<!-- Body consists of the menu bar and default content box -->
+		<ul id="nav_bar">
+			<li id="logoItem" ><img class="logo" src="{% static "images/zombaez.png" %}" alt="ZombaeZ logo"/>
+			<li><a id="nav1" href="{% url 'home' %}">Home</a></li>
+			<li><a id="nav2" href="{% url 'how_to_play' %}">How to Play</a></li>
+			<li><a id="nav3" href="{% url 'leaderboards' %}">Leaderboard</a></li>
+			{% if user.is_authenticated %}
+			<li><a id="nav4" href="{% url 'play' %}">Play ZombaeZ</a></li>
+			<li class="right drop_down"><a>{{user.username}}</a>
+				<div id="drop_down_content">
+					<a href="{% url 'user_profile' %}">User Profile</a>
+					<a href="{% url 'auth_password_change' %}">Change Password</a>
 						<a href="{% url 'auth_logout' %}?next=/zombaez/">Logout</a>
-					</div>
-				</li>
-				{% else %}
-				<li class="right"><a href="{% url 'auth_login' %}?next={{ request.get_full_path|urlencode }}">Log In/Register</a><li>
-				{% endif %}
-			</ul>
-		<div id="content">
-            {% block body_block %}{% endblock %}
-        </div>
+				</div>
+			</li>
+			{% else %}
+			<li class="right"><a href="{% url 'auth_login' %}?next={{ request.get_full_path|urlencode }}">Log In/Register</a><li>
+			{% endif %}
+		</ul>
+	<div id="content">
+        {% block body_block %}{% endblock %}
+    </div>
 	</body>
 
 

@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block body_block %}
-
+		<!-- Displays a "slideshow" of images and descriptions relating to how to play the game -->
 		<div id="slideshow">
 			<div id="left_third" class="third">
 				<img id="left" src="{% static 'images/left.png' %}" onclick="prev()"/>
@@ -29,9 +29,9 @@
 		</div>
 		
 		<div id="desc">
-			<p id="p1" class="show">You start the game on a street. Your aim is to go into houses and get supplies and save other survivors. To enter a house, press the 'E' key while on a door.</p>
-			<p id="p2">When you are inside a house you have many rooms to choose from. To enter a room you must press 'E'. Inside you will find zombies or loot!</p>
-			<p id="p3">If you are lucky and find no zombies then you will be told what items you have collected.</p>
+			<p id="p1" class="show">You start the game on a street. Your aim is to go into houses and get supplies and save other survivors. To walk around use the 'W', 'A', 'S' and 'D' keys. To enter a house, press the 'E' key while on a door.</p>
+			<p id="p2">When you are inside a house you have many rooms to choose from. To enter a room you must press 'E'. Inside you will find zombies and/or loot! You can also press 'E' on the front door to exit the house.</p>
+			<p id="p3">If you are lucky and find no zombies then you will be told what items you have collected. Use the 'W' and 'S' keys to navigate the menu.</p>
 		</div>
 
 {% endblock %}

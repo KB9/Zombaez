@@ -19,6 +19,7 @@
 		
 		<div class="half">
 		<h3>Player Stats</h3>
+		<!-- Display a table of stats -->
 		<table>
 			<tr>
 				<td>Games Played</td>
@@ -46,6 +47,7 @@
 			</tr>
 		</table>
 		
+		<!-- Display all of the user's badges -->
 		<h3>Badges</h3>
 		{% if badges %}
 			{% for badge in badges %}
@@ -59,6 +61,8 @@
 			{% endif %}
 		{% endif %}
 		</div>
+		
+		<!-- Display the user's avatar -->
 		<div class="half right_profile">
 			<div id="wrapper">
 				<img id = "avatar" src="{{player.avatar.url}}" alt="Profile Image"/>

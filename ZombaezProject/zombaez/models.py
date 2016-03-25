@@ -3,9 +3,9 @@ from django.contrib.auth.models import User as DjangoUser
 
 class User(models.Model):
     username = models.CharField(max_length=128, unique=True)
-    user = models.OneToOneField(DjangoUser, on_delete=models.CASCADE)
+    # Link with a django-registration user
+    user = models.OneToOneField(DjangoUser, on_delete=models.CASCADE) 
 
-    
     zombies_killed = models.IntegerField(default=0)
     total_games_played = models.IntegerField(default=0)
     total_ammo_collected = models.IntegerField(default=0)

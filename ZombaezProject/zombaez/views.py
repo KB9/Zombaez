@@ -6,6 +6,7 @@ from engine import main as engine
 from threading import Thread
 import json
 
+#View for the home page. Context dictionary contains paragraph on game description
 def home(request):
     context_dict = {"about" :"""A zombie apocalypse has broken out and you find yourself all alone.
 Your goal is to survive as many days as possible during the zombie apocalypse.
@@ -24,6 +25,7 @@ If your group size dwindles, so do your chances of survival should you encounter
 def how_to_play(request):
     return render(request, 'zombaez/how_to_play.html')
 
+#Context dict entries are showing the top fifty players in each statistic.
 def leaderboards(request):
     context_dict = {"total_games_played":User.objects.order_by("-total_games_played")[:50]}
     context_dict["total_ammo_collected"] = User.objects.order_by("-total_ammo_collected")[:50]
@@ -37,6 +39,7 @@ def leaderboards(request):
 def user(request, player_name):
     context_dict = {}
 
+    #In the event that the player in the URL doesn't exist then don't pass anything back
     try:
         player = User.objects.get(username=player_name)
         context_dict['player'] = player
@@ -64,22 +67,24 @@ def game_event(request):
     global current_house
     global current_room
     global game_info
+    print request.method
     if request.method != "GET":
         return
 
     get = request.GET
     eventType = get["event_type"]
     
-    if eventType == "unpickle_on_load":
+    if eventType == "unpickle_on_load": #First check if the event was the page loading. With out this the game would never be unpickled
         engine.initNewGame()
         engine.unpickleGame(request)
 
-    if eventType == "pickle_on_close":
+    elif eventType == "pickle_on_close":
         engine.pickleGame(request)
         
     elif eventType=="house_exited":
         engine.game.game_state = "HOUSE"
         engine.game.take_turn("EXIT")
+        
     elif eventType=="house_entered":
         engine.game.game_state = "STREET"
         engine.game.take_turn("ENTER")
@@ -88,23 +93,24 @@ def game_event(request):
         game_info["num_of_rooms"] = current_house.num_of_rooms
                                                
     elif eventType=="room_entered":
-        
         engine.game.game_state = "HOUSE"
         current_house.current_room = int(get["room_id"])
         current_room = current_house.room_list[int(get["room_id"])]
+        
         game_info["room_people"]=current_room.people
         game_info["room_food"]=current_room.food
         game_info["room_ammo"]=current_room.ammo
         game_info["room_zombies"]=current_room.zombies
+        
         engine.game.take_turn("SEARCH", int(get["room_id"]))
-
-
+        
     elif eventType == "room_exited":
         engine.game.game_state = "HOUSE"
         
     elif eventType =="zombie_run":
         engine.game.game_state = "ZOMBIE"
         engine.game.take_turn("RUN")
+        
     elif eventType == "zombie_fight":
         engine.game.game_state = "ZOMBIE"
         game_info["start_zombies"]=current_room.zombies
@@ -113,16 +119,17 @@ def game_event(request):
         game_info["room_ammo"]=current_room.ammo
         engine.game.take_turn("FIGHT")
         game_info["room_zombies"]=current_room.zombies
-    if eventType == "game_over":
-        updateLeaderboardsAndBadges(request)
+        
+    elif eventType == "game_over":
+        updateLeaderboardsAndBadges(request) #Update leaderboards and award badges only when the user dies
         engine.initNewGame()
 
-    game_info.update(engine.postStatus())
+    game_info.update(engine.postStatus()) #This is for displaying the HUD data
 
     return HttpResponse(json.dumps(game_info))
 
 def updateLeaderboardsAndBadges(request):
-    print "load user"
+    #update stats
     u = User.objects.get(user=request.user.user)
     u.total_games_played += 1
     u.total_ammo_collected = u.total_ammo_collected + engine.game.player_state.total_ammo
@@ -132,7 +139,8 @@ def updateLeaderboardsAndBadges(request):
     
     if engine.game.player_state.largest_party > u.largest_party_size:
         u.largest_party_size = engine.game.player_state.largest_party
-    
+
+    #Check if user already has badges
     badgeExists = [False] * 12
     for badge in Badge.objects.all().filter(user=u):
         if badge.name == "Killer":
@@ -163,7 +171,9 @@ def updateLeaderboardsAndBadges(request):
                 badgeExists[10] = True
             elif badge.level == 3:
                 badgeExists[11] = True
-    u.save()  
+    u.save()
+
+    #Award badges
     if u.zombies_killed > 10 and not badgeExists[0]:
         k1 = Badge(user=request.user.user)
         k1.description = "Earned for killing 10 ZombaeZ"

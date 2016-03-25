@@ -15,6 +15,7 @@ def initNewGame():
     game = Game()
     game.start_new_day()
 
+# Pickles the player, update and game state variables
 def pickleGame(request):
     
     data = userGame.objects.get(user=request.user.user)
@@ -23,7 +24,7 @@ def pickleGame(request):
     data.game_state = pickle.dumps(game.game_state)
     data.save()
     
-
+# Returns a dictionary of current game variables for use in the renderer.js file
 def postStatus():
     player_status={}
     player_status["time_left"]=game.time_left
@@ -34,7 +35,7 @@ def postStatus():
     player_status["player_day"]=game.player_state.days
     return player_status
 
-
+# Unpickle the objects from the database
 def unpickleGame(request):
     gameUser = userGame.objects.get(user=request.user.user)
     game.player_state = pickle.loads(gameUser.player_state)
