@@ -4,21 +4,17 @@ KB9           Kavan Bickerstaff - 2125515
 davidboyd96   David Boyd        - 2116483
 theotherlefty Douglas Fraser    - 2140345
 
-In order to run zombaez, two packages must be installed using the following commands:
 
-pip install fake-factory
-pip install wsgiref
-
-Once these two packages have installed you need to navigate to the folder where the manage.py file is located. This is at
+First you need to navigate to the folder where the manage.py file is located. This is at
 Zombaez/ZombaezProject.
 
-Before running the project, to ensure that the database contains no data you must delete the db.sqlite file.
+Before running the project, to ensure that the database contains no data or duplicates, you must delete the db.sqlite file.
 Then run the command ..\Scripts\python manage.py migrate
 Then the command    ..\Scripts\python populate_zombaez.py in order to repopulate the database
 
 The python command used to run the local server is ..\Scripts\python manage.py runserver
 
-The whole "..\Scripts\" is because the local python environment is located there.
+The "..\Scripts\" part of the command is because this is where the local python executable is located.
 
 Bug fixes made after code submission but prior to presentation:
 
