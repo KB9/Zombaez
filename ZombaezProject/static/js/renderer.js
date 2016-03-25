@@ -95,11 +95,6 @@ Level.prototype.renderLayer = function(layerIndexList) {
                     var clipY = Math.floor(tileIndex / this.tilesetTileWidth) * realTileHeight;
 
                     context.drawImage(this.tilesetImage, clipX, clipY, this.tileWidth, this.tileHeight, tileX, tileY, this.tileWidth, this.tileHeight);
-                    //context.font = "9px Arial";
-                    //context.fillStyle = "magenta";
-                    //context.fillText(tileIndex, tileX, tileY + 16);
-                    //context.fillText(r + ",", tileX, tileY + 8);
-                    //context.fillText(c, tileX, tileY + 16);
                 }
             }
         }
@@ -252,25 +247,11 @@ window.onbeforeunload = function(){
 }
 window.onload = function() {
 
-// Navigation bar code
+    // Navigation bar code
     var c = document.getElementById("nav4");
     c.className += " active";
-//Pickling code
-    $.ajax({
-        type: "GET",
-        url: "/zombaez/game_event/",
-        data: {
-            "event_type": "unpickle_on_load"
-        },
-        success: function(data) {
-            data = JSON.parse(data);
-            updatePlayerStats(data["player_party"], data["player_ammo"], data["time_left"], data["player_day"], data["player_food"], data["player_kills"]);
-			//console.log(data["player_party"])
-			
-			renderScene();
-		}
-    });
-//Canvas/Game code
+
+    //Canvas/Game code
     canvas = document.getElementById("game_canvas");
     context = canvas.getContext("2d");
 
@@ -292,9 +273,22 @@ window.onload = function() {
         hallLevel.loadLevel("hallmap");
 
         activeLevel = level;
-
-        updateCamera();
-        renderScene();
+        
+        // Once images loaded and game set up, unpickle the last saved game
+        $.ajax({
+            type: "GET",
+            url: "/zombaez/game_event/",
+            data: {
+                "event_type": "unpickle_on_load"
+            },
+            success: function(data) {
+                data = JSON.parse(data);
+                updatePlayerStats(data["player_party"], data["player_ammo"], data["time_left"], data["player_day"], data["player_food"], data["player_kills"]);
+			
+                updateCamera();
+		        renderScene();
+	        }
+        });
     });
 }
 
@@ -372,10 +366,22 @@ function updatePlayerStats(party, ammo, time, day, food, kills) {
     playerKills = kills;
 }
 
+function showLoadingText()
+{
+    var loadingText = "Loading...";
+    var textWidth = context.measureText(loadingText).width;
+
+    context.fillStyle = "black";
+    context.fillRect(HALF_SCREEN_WIDTH - (textWidth / 2) - 5, HALF_SCREEN_HEIGHT - 16, textWidth + 10, 32);
+
+    context.font = "16px Arial";
+    context.fillStyle = "white";
+    context.fillText(loadingText, HALF_SCREEN_WIDTH - (textWidth / 2), HALF_SCREEN_HEIGHT + 8);
+}
+
 function renderScene() {
     clearCanvas();
 
-    //activeLevel.renderLayer(activeLevel.tiles);
     activeLevel.renderBaseImage();
 
     player.render(context);
@@ -443,16 +449,17 @@ function onKeyPressed(charCode) {
                 var doorId = activeLevel.getDoorIdInFrontOfPlayer(playerCX, playerCY);
                 if (doorId != null) {
                     // EW, FIX THIS!!!!!
-                    if (activeLevel.id == 0) onEnterHouse(doorId);
-                    if (activeLevel.id == 1) onEnterRoom(doorId);
+                    if (activeLevel.id == 0) {
+                        onEnterHouse(doorId);
+                    }
+                    else if (activeLevel.id == 1) {
+                        onEnterRoom(doorId);
+                    }
                 }
+            } else {
+                updateCamera();
+                renderScene();
             }
-
-            // DEBUG
-            if (charString == "coords") alert("Position: " + "(" + player.x + ", " + player.y + ")" + " [" + Math.floor(player.x / 16) + ", " + Math.floor(player.y / 16) + "]");
-
-            updateCamera();
-            renderScene();
         } else {
             switch (charString) {
                 case "up":
@@ -507,13 +514,11 @@ function loadImages(sources, callback) {
     }
 }
 
-function fromJSON(jsonData) {
-    return JSON.parse(jsonData);
-}
-
 // =============== AJAX CALLS ===============
 
 function onEnterHouse(houseId) {
+    showLoadingText();
+
     $.ajax({
         type: "GET",
         url: "/zombaez/game_event/",
@@ -555,6 +560,8 @@ function onEnterHouse(houseId) {
 }
 
 function onExitHouse() {
+    showLoadingText();
+
     $.ajax({
         type: "GET",
         url: "/zombaez/game_event/",
@@ -570,14 +577,16 @@ function onExitHouse() {
 
             activeLevel = level;
             player.setLevel(activeLevel, playerLastStreetX, playerLastStreetY);
-            updateCamera();
-			
+
+            updateCamera();			
             renderScene();
         }
     });
 }
 
 function onEnterRoom(roomId) {
+    showLoadingText();
+
     if (roomId > -1) {
         $.ajax({
             type: "GET",
@@ -648,6 +657,8 @@ function onEnterRoom(roomId) {
 }
 
 function onExitRoom() {
+    showLoadingText();
+
     $.ajax({
         type: "GET",
         url: "/zombaez/game_event/",
@@ -667,6 +678,8 @@ function onExitRoom() {
 }
 
 function onFightZombie() {
+    showLoadingText();
+
     $.ajax({
         type: "GET",
         url: "/zombaez/game_event/",
@@ -678,7 +691,6 @@ function onFightZombie() {
 			data = JSON.parse(data);
 			updatePlayerStats(data["player_party"], data["player_ammo"], data["time_left"], data["player_day"], data["player_food"], data["player_kills"]);
 
-			
             if (!checkGameOver(data["player_party"])) {
 				dialog = new DialogMenu(
                     "You have found:",
@@ -714,6 +726,8 @@ function onFightZombie() {
 }
 
 function onRunFromZombie() {
+    showLoadingText();
+
     $.ajax({
         type: "GET",
         url: "/zombaez/game_event/",
@@ -737,6 +751,8 @@ function onRunFromZombie() {
 }
 
 function onGameOver() {
+    showLoadingText();
+
     $.ajax({
         type: "GET",
         url: "/zombaez/game_event/",
