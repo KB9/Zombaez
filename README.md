@@ -8,6 +8,14 @@ The first step is to clone the repository. This can be done by opening up the gi
 
 git clone https://github.com/KB9/Zombaez
 
+If you get any error messages relating to faker/fake-factory then please use these two commands:
+
+..\Scripts\pip install fake-factory
+..\Scripts\pip install wsgiref
+
+These should already be installed in the local python directory but just incase you need them I have listed them.
+
+
 First you need to navigate to the folder where the manage.py file is located. This is at
 Zombaez/ZombaezProject.
 
@@ -32,3 +40,5 @@ The HUD was not updating properly once successful AJAX requests were made so thi
 Game over fuction failed most of the time due to errors with dying when fighting zombaez. This also caused errors further up the line with pickling and leaderboards.
 
 The original population script was faulty as it did not actually create a django auth user for each user making login impossible for testing
+
+Comments added in the appropriate places and bug on python anywhere deploment regarding pickling has been fixed
