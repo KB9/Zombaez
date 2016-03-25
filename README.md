@@ -4,12 +4,17 @@ KB9           Kavan Bickerstaff - 2125515
 davidboyd96   David Boyd        - 2116483
 theotherlefty Douglas Fraser    - 2140345
 
+The first step is to clone the repository. This can be done by opening up the git shell and typing the command:
+
+git clone https://github.com/KB9/Zombaez
 
 First you need to navigate to the folder where the manage.py file is located. This is at
 Zombaez/ZombaezProject.
 
 Before running the project, to ensure that the database contains no data or duplicates, you must delete the db.sqlite file.
+
 Then run the command ..\Scripts\python manage.py migrate
+
 Then the command    ..\Scripts\python populate_zombaez.py in order to repopulate the database
 
 The python command used to run the local server is ..\Scripts\python manage.py runserver
