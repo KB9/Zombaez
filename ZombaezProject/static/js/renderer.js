@@ -1,5 +1,24 @@
+/*
+    Front end renderer for the Python zombie game engine.
+
+    Levels were created using the Tiled Map Editor and exported as JS functions
+    which create a global variable named TileMaps. TileMaps can then be accessed
+    to retrieve the IDs of the tiles that make up a level, which are then used
+    to render the level in the canvas.
+
+    Tile IDs are also used for simple collision detection so as to prevent the
+    player from walking through buildings.
+
+    Map images are used instead of tiles for the tiles below the player's
+    layer number as rendering all the tiles in this layer caused severe
+    performance issues.
+
+    Author: Kavan Bickerstaff
+*/
+
 // =============== TILED LEVELS ===============
 
+// "Static" variable used to identify levels. Incremented in Level constructor.
 var levelId = 0;
 
 var Level = function(tilesetImage, baseImage, levelWidth, levelHeight, tileWidth, tileHeight) {
@@ -28,16 +47,6 @@ var Level = function(tilesetImage, baseImage, levelWidth, levelHeight, tileWidth
     this.tilesetTileWidth = Math.floor((628 + this.tileSpacing) / (tileWidth + this.tileSpacing));
 }
 
-Level.prototype.generateLevel = function() {
-    var count = 0;
-    for (var r = 0; r < this.levelHeight; r++) {
-        this.tiles[r] = [];
-        for (var c = 0; c < this.levelWidth; c++) {
-            this.tiles[r].push(count++);
-        }
-    }
-}
-
 Level.prototype.loadLevel = function(tiledJSMapName) {
     var tileLayers = TileMaps[tiledJSMapName]["layers"];
 
@@ -53,6 +62,7 @@ Level.prototype.loadLevel = function(tiledJSMapName) {
         }
     }
 
+    // Populate the upper layer with data (tile ID if present, -1 otherwise)
     if (tileLayers[1] != null) {
         var layer2Tiles = tileLayers[1]["data"];
         for (var r = 0; r < this.levelHeight; r++) {
@@ -75,22 +85,32 @@ Level.prototype.loadLevel = function(tiledJSMapName) {
     }
 }
 
+/*
+    Renders a base image instead of base tiles so as to avoid performance
+    issues with the sheer amount of tiles that need to be rendered.
+
+    Images were generated using the Tiled Map Editor's image exporter.
+*/
 Level.prototype.renderBaseImage = function() {
     context.drawImage(this.baseImage, -this.x, -this.y, 640, 480, 0, 0, 640, 480);
 }
 
 Level.prototype.renderLayer = function(layerIndexList) {
+    // Accounts for the spacing between tiles on the tilemap
     var realTileWidth = this.tileWidth + this.tileSpacing;
     var realTileHeight = this.tileHeight + this.tileSpacing;
 
     for (var r = 0; r < this.levelHeight; r++) {
         for (var c = 0; c < this.levelWidth; c++) {
+            // Calculate the position of the tile relative to the level position
             var tileX = this.x + (c * this.tileWidth);
             var tileY = this.y + (r * this.tileHeight);
 
+            // Check if the tiles are within the visible area; draw if they are.
             if (tileX < 640 && tileX + this.tileWidth > 0 && tileY < 480 && tileY + this.tileHeight > 0) {
                 var tileIndex = layerIndexList[r][c];
                 if (tileIndex >= 0) {
+                    // Calculate where to clip the image from on the tilemap based on its tile ID
                     var clipX = (tileIndex % this.tilesetTileWidth) * realTileWidth;
                     var clipY = Math.floor(tileIndex / this.tilesetTileWidth) * realTileHeight;
 
@@ -101,6 +121,10 @@ Level.prototype.renderLayer = function(layerIndexList) {
     }
 }
 
+/*
+    Gets the tile ID at the specified position in the level, on the specified
+    layer.
+*/
 Level.prototype.getTileIndex = function(layer, x, y) {
     if (x < 0) return null;
     if (y < 0) return null;
@@ -117,6 +141,13 @@ Level.prototype.setDoorData = function(doorDataList) {
     this.doorData = doorDataList;
 }
 
+/*
+    Checks the row and column of the tile in front of the coordinates specified
+    against the list of stored door positions. If any of the row/columns
+    matches, the tile ID (which is stored as the 3rd element) is returned.
+    
+    If no door can be found at the coordinates supplied, null is returned.
+*/
 Level.prototype.getDoorIdInFrontOfPlayer = function(x, y) {
     x = Math.floor(x / this.tileWidth);
     y = Math.floor(y / this.tileHeight) - 1;   // -1 so that collision detection doesn't prevent entry
@@ -140,6 +171,10 @@ var Character = function(charImage, level) {
     this.height = 16;
 }
 
+/*
+    Draws the character at a position relative to the level in which the player
+    is currently in.
+*/
 Character.prototype.render = function(context) {
     context.drawImage(this.charImage, this.level.x + this.x, this.level.y + this.y, this.width, this.height);
 }
@@ -152,6 +187,11 @@ Character.prototype.setLevel = function(newLevel, x, y) {
 
 // =============== MENUS ===============
 
+/*
+    DialogMenu class
+    Has a title and a scrollable list of options which each correspond to a
+    function which is called whenever the option is selected.
+*/
 var DialogMenu = function(title, optionsList, functionsList, x, y, width, height) {
     this.title = title;
     this.optionsList = optionsList;
@@ -171,13 +211,18 @@ var DialogMenu = function(title, optionsList, functionsList, x, y, width, height
     this.cursorPos = 0;
 }
 
-// Title takes 1/4 of menu, options take bottom 1/2
+/*
+    Renders the DialogMenu. Also sets the global variable menuMode to true
+    which affects how keyboard events are interpreted.
+
+    Title takes 1/4 of menu, options take bottom 1/2
+*/
 DialogMenu.prototype.render = function(context) {
     context.fillStyle = "black";
     context.fillRect(this.x, this.y, this.width, this.height);
 
     context.font = this.titleSize + "px Arial";
-    context.fillStyle = "red";
+    context.fillStyle = "white";
     context.fillText(this.title, this.x, this.y + 24);
 
     context.font = this.optionsSize + "px Arial";
@@ -192,6 +237,11 @@ DialogMenu.prototype.render = function(context) {
     menuMode = true;
 }
 
+/*
+    This should be called whenever an option in the DialogMenu is selected.
+    If the corresponding variable is null, no action is taken. If the action
+    is a function, that function is called.
+*/
 DialogMenu.prototype.onOptionSelected = function(position) {
     var func = this.functionsList[position];
     if (func != null) {
@@ -218,15 +268,13 @@ var g_images = {};
 var canvas;
 var context;
 
-var level;
-var hallLevel;
-var activeLevel;
-var dialog;
-
-var menuMode = false;
-
-var player;
-window.onbeforeunload = function(){
+/*
+    Before the window is unloaded, an AJAX call is made to the server
+    to let that the game engine know that the user has stopped playing
+    the game and that their game state should be saved (pickled) for
+    when they next play the game.
+*/
+window.onbeforeunload = function() {
  $.ajax({
         type: "GET",
         url: "/zombaez/game_event/",
@@ -234,7 +282,6 @@ window.onbeforeunload = function(){
             "event_type": "pickle_on_close"
         },
         success: function(data) {
-            $("#play-button").html(data);
 			
         },
 		error: function (xmlHttpRequest, data) {
@@ -245,6 +292,14 @@ window.onbeforeunload = function(){
         }
     });
 }
+
+/*
+    Starting point for the renderer.
+    The canvas and canvas context are initialized first and then the images
+    which the game relies on are loaded. Once these images are loaded, the
+    client-side game is initialised and an AJAX call is made to retrieve
+    the game state (via unpickling strings).
+*/
 window.onload = function() {
 
     // Navigation bar code
@@ -255,8 +310,15 @@ window.onload = function() {
     canvas = document.getElementById("game_canvas");
     context = canvas.getContext("2d");
 
-    loadImages(g_sources, function(g_images) {
-        level = new Level(g_images.tileset, g_images.map_base_image, 64, 64, 16, 16);
+    // Show loading text so users know the game is being initialised
+    clearCanvas();
+    showLoadingText();
+
+    // Load all images first then continue
+    loadImages(g_sources, function(images) {
+
+        // Initialise the street level with its tile and door data
+        level = new Level(images.tileset, images.map_base_image, 64, 64, 16, 16);
         level.loadLevel("citymap");
         level.setDoorData([
             [13,3,0], [13,4,0], [13,9,1], [13,10,1], [10,18,2], [10,25,3], [13,38,4], [13,45,5], [13,52,6],
@@ -265,13 +327,16 @@ window.onload = function() {
             [61,3,16], [61,4,16], [58,11,17], [59,22,18], [61,49,19], [61,50,19]
         ]);
 
-        player = new Character(g_images.character, level);
+        // Initialise the player character
+        player = new Character(images.character, level);
         player.x = 31 * level.tileWidth;
         player.y = 31 * level.tileHeight;
 
-        hallLevel = new Level(g_images.tileset, g_images.hall_base_image, 64, 64, 16, 16);
+        // Initialise the hall level which leads to the rooms
+        hallLevel = new Level(images.tileset, images.hall_base_image, 64, 64, 16, 16);
         hallLevel.loadLevel("hallmap");
 
+        // Set the active level to the street level
         activeLevel = level;
         
         // Once images loaded and game set up, unpickle the last saved game
@@ -282,6 +347,7 @@ window.onload = function() {
                 "event_type": "unpickle_on_load"
             },
             success: function(data) {
+                // Update global player stats from returned JSON data
                 data = JSON.parse(data);
                 updatePlayerStats(data["player_party"], data["player_ammo"], data["time_left"], data["player_day"], data["player_food"], data["player_kills"]);
 			
@@ -294,6 +360,15 @@ window.onload = function() {
 
 // =============== GAME RELATED FUNCTIONS/VARIABLES ===============
 
+var level;
+var hallLevel;
+var activeLevel;
+var dialog;
+
+var player;
+
+var menuMode = false;
+
 var playerParty;
 var playerAmmo;
 var playerTime;
@@ -304,19 +379,28 @@ var playerKills;
 // IDs of non-blocking tiles
 var nonBlockingTiles = [751,714,831,832,794,795,823,822,789,747,741,710,821,857,858,900,748,711,746,820,859,709];
 
+// Used to return the player to their last position in the street before they
+// entered a house.
 var playerLastStreetX;
 var playerLastStreetY;
 
+/*
+    Checks to see if a tile is within the global array of non-blocking tiles.
+*/
 function isNonBlockingTile(level, x, y) {
     return nonBlockingTiles.indexOf(level.getTileIndex(0, x, y)) > -1;
 }
 
+/*
+    Should be nearest to the last call made within renderScene() so that the
+    HUD is displayed over all other images on the screen.
+*/
 function renderHUD() {
     context.fillStyle = "black";
     context.fillRect(0, 0, 150, 100);
 
     context.font = "16px Arial";
-    context.fillStyle = "red";
+    context.fillStyle = "white";
 
     context.fillText("Party: " + playerParty, 0, 16, 150);
     context.fillText("Ammo: " + playerAmmo, 0, 32, 150);
@@ -326,6 +410,13 @@ function renderHUD() {
     context.fillText("Kills: " + playerKills, 0, 96, 150);
 }
 
+/*
+    Determines if the game is over depending on the number of people in the
+    player's party. This value can be retrieved using an AJAX call and parsing
+    the returned JSON data.
+    If the size is <0, the game is over and the necessary calls are made to
+    start a new game.
+*/
 function checkGameOver(partySize) {
     if (partySize <= 0) {
         dialog = new DialogMenu(
@@ -347,6 +438,11 @@ function checkGameOver(partySize) {
     return false;
 }
 
+/*
+    When a new game is started, the player is returned to the center of the
+    street level & menu mode is disabled in case it was enabled when the user
+    died.
+*/
 function startNewGame()
 {
     menuMode = false;
@@ -357,6 +453,10 @@ function startNewGame()
     renderScene();
 }
 
+/*
+    Updates the global variables which store info about the current player state.
+    These variables are displayed in the HUD.
+*/
 function updatePlayerStats(party, ammo, time, day, food, kills) {
     playerParty = party;
     playerAmmo = ammo;
@@ -366,6 +466,13 @@ function updatePlayerStats(party, ammo, time, day, food, kills) {
     playerKills = kills;
 }
 
+/*
+    Used to notify the user that an AJAX call has been made and the renderer is
+    waiting for a response from the Python game engine on the server before it
+    can continue.
+    This text is not explicitly hidden after the next scene has been rendered
+    as the screen will be cleared before the next render call anyway.
+*/
 function showLoadingText()
 {
     var loadingText = "Loading...";
@@ -379,9 +486,15 @@ function showLoadingText()
     context.fillText(loadingText, HALF_SCREEN_WIDTH - (textWidth / 2), HALF_SCREEN_HEIGHT + 8);
 }
 
+/*
+    Renders the level, character, layered level tiles and the HUD to the
+    game canvas.
+*/
 function renderScene() {
     clearCanvas();
 
+    // Base image is used to prevent performance issues caused by sheer amount
+    // of tiles that need to be rendered.
     activeLevel.renderBaseImage();
 
     player.render(context);
@@ -461,6 +574,7 @@ function onKeyPressed(charCode) {
                 renderScene();
             }
         } else {
+            // Controls the movement of the cursor in the menu
             switch (charString) {
                 case "up":
                     if (dialog.cursorPos > 0) dialog.cursorPos--;
@@ -472,6 +586,7 @@ function onKeyPressed(charCode) {
 
             dialog.render(context);
 
+            // Choices are made when the user presses the 'enter' key
             if (charString == "enter") {
                 dialog.onOptionSelected(dialog.cursorPos);
             }
@@ -479,6 +594,11 @@ function onKeyPressed(charCode) {
     }
 }
 
+/*
+    Modifies the coordinates of the level so as to give the illusion that
+    a camera is following the player through the level. Keeps focus on the
+    player.
+*/
 function updateCamera() {
     // Corrects the "camera" from scrolling outside the x-bounds of the level
     activeLevel.x = HALF_SCREEN_WIDTH - player.x;
@@ -527,7 +647,6 @@ function onEnterHouse(houseId) {
             "house_id": houseId
         },
         success: function(data) {
-            $("#play-button").html(data);
             data = JSON.parse(data);
             var roomCount = data["num_of_rooms"];
 
@@ -569,7 +688,6 @@ function onExitHouse() {
             "event_type": "house_exited",
         },
         success: function(data) {
-            $("#play-button").html(data);
 			data = JSON.parse(data);
 			updatePlayerStats(data["player_party"], data["player_ammo"], data["time_left"], data["player_day"], data["player_food"], data["player_kills"]);
 
@@ -596,13 +714,13 @@ function onEnterRoom(roomId) {
                 "room_id": roomId
             },
             success: function(data) {
-                $("#play-button").html(data);
                 data = JSON.parse(data);
 				updatePlayerStats(data["player_party"], data["player_ammo"], data["time_left"], data["player_day"], data["player_food"], data["player_kills"]);
 
                 if(checkGameOver(data["player_party"])) return;
 
                 if (data["room_zombies"] > 0) {
+                    // Show zombae fight/run DialogMenu
                     var zombaeCount = data["room_zombies"];
                     var pluralExt = (zombaeCount > 1 ? "z" : "");
                     var title = "You have encountered " + zombaeCount + " zombae" + pluralExt;
@@ -626,6 +744,7 @@ function onEnterRoom(roomId) {
                     );
                     dialog.render(context);
                 } else {
+                    // Show items found DialogMenu
                     dialog = new DialogMenu(
                         "You have found:",
                         [
@@ -666,7 +785,6 @@ function onExitRoom() {
             "event_type": "room_exited",
         },
         success: function(data) {
-            $("#play-button").html(data);
 			data = JSON.parse(data);
 			updatePlayerStats(data["player_party"], data["player_ammo"], data["time_left"], data["player_day"], data["player_food"], data["player_kills"]);
 
@@ -687,10 +805,11 @@ function onFightZombie() {
             "event_type": "zombie_fight"
         },
         success: function(data) {
-            $("#play-button").html(data);
 			data = JSON.parse(data);
 			updatePlayerStats(data["player_party"], data["player_ammo"], data["time_left"], data["player_day"], data["player_food"], data["player_kills"]);
 
+            // If the game isn't over after fighting a zombae, show collected
+            // items.
             if (!checkGameOver(data["player_party"])) {
 				dialog = new DialogMenu(
                     "You have found:",
@@ -735,9 +854,9 @@ function onRunFromZombie() {
             "event_type": "zombie_run"
         },
         success: function(data) {
-            $("#play-button").html(data);
 			data = JSON.parse(data);
 			updatePlayerStats(data["player_party"], data["player_ammo"], data["time_left"], data["player_day"], data["player_food"], data["player_kills"]);
+
             menuMode = false;
 
             if(checkGameOver(data["player_party"])) return;
